@@ -473,10 +473,11 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       )}
 
       <div className="border rounded-lg overflow-x-auto">
-        <Table className="min-w-max">
+        <div style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
+        <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="sticky left-0 bg-background z-10 min-w-[180px]">
+              <TableHead className="sticky left-0 bg-background z-10 w-[180px] min-w-[180px]">
                 クライアント
               </TableHead>
               {months.map((m, i) => {
@@ -484,7 +485,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                 const prevYear = i > 0 ? months[i - 1].split('/')[0] : '';
                 const showYear = year !== prevYear;
                 return (
-                  <TableHead key={m} className="text-center min-w-[80px] whitespace-nowrap">
+                  <TableHead key={m} className="text-center w-[100px] min-w-[100px] whitespace-nowrap">
                     {showYear && <div className="text-xs text-muted-foreground">{year}</div>}
                     {month}月
                   </TableHead>
@@ -596,6 +597,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
             </TableRow>
           </TableBody>
         </Table>
+        </div>
       </div>
 
       <AddClientDialog
