@@ -4,7 +4,7 @@ import { GlobalFilters } from '@/components/global-filters';
 import { KpiCards } from '@/components/kpi-cards';
 import { VcProgressChart } from '@/components/vc-progress-chart';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function VcProgressPage({
   searchParams,

@@ -3,7 +3,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { fetchDashboardData } from "@/lib/sheets-client";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({
   children,

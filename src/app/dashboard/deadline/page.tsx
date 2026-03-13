@@ -11,7 +11,7 @@ import { GlobalFilters } from "@/components/global-filters";
 import { KpiCards } from "@/components/kpi-cards";
 import { DeadlineTable } from "@/components/deadline-table";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function DeadlinePage({
   searchParams,
