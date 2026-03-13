@@ -503,11 +503,10 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
         ref={scrollContainerRef}
         className="border rounded-lg overflow-x-auto"
       >
-        <div style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
-        <Table>
+        <Table style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
           <TableHeader>
             <TableRow>
-              <TableHead className="sticky left-0 bg-background z-10 w-[180px] min-w-[180px]">
+              <TableHead className="sticky left-0 bg-background z-20 w-[180px] min-w-[180px]">
                 クライアント
               </TableHead>
               {months.map((m, i) => {
@@ -652,7 +651,6 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
             </TableRow>
           </TableBody>
         </Table>
-        </div>
       </div>
 
       <AddClientDialog
