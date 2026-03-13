@@ -135,6 +135,18 @@ export function AddClientDialog({
       setError('間隔は1〜12ヶ月の範囲で入力してください');
       return;
     }
+
+    // 予定件数必須
+    if (!forecastCount || forecastCount.trim() === '') {
+      setError('予定件数を入力してください');
+      return;
+    }
+    const fcNum = Number(forecastCount);
+    if (isNaN(fcNum) || fcNum < 0) {
+      setError('予定件数は0以上の数値を入力してください');
+      return;
+    }
+
     onAdd({
       vcName: trimmedName,
       category,
@@ -142,7 +154,7 @@ export function AddClientDialog({
       intervalMonths: frequency === 'regular' ? intMonths : null,
       deadlineDay: null,
       assignDeadlineDay: null,
-      forecastCount: forecastCount ? Number(forecastCount) : 0,
+      forecastCount: fcNum,
     });
 
     handleOpenChange(false);
@@ -183,7 +195,7 @@ export function AddClientDialog({
             {mode === 'lookup' ? (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">
-                  クライアント
+                  クライアント <span className="text-destructive">*</span>
                 </Label>
                 <div className="col-span-3">
                   <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -230,7 +242,7 @@ export function AddClientDialog({
             ) : (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="vcName" className="text-right">
-                  クライアント名
+                  クライアント名 <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="vcName"
@@ -246,7 +258,7 @@ export function AddClientDialog({
             {/* カテゴリ */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">
-                カテゴリ
+                カテゴリ <span className="text-destructive">*</span>
               </Label>
               <div className="col-span-3">
                 <Select value={category} onValueChange={(v) => setCategory(v as ForecastCategory)}>
@@ -267,7 +279,7 @@ export function AddClientDialog({
             {/* 頻度 */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="frequency" className="text-right">
-                頻度
+                頻度 <span className="text-destructive">*</span>
               </Label>
               <div className="col-span-3">
                 <Select value={frequency} onValueChange={(v) => setFrequency(v as ForecastFrequency)}>
@@ -289,7 +301,7 @@ export function AddClientDialog({
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">
-                  間隔（月数）
+                  間隔（月数） <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   type="number"
@@ -306,7 +318,7 @@ export function AddClientDialog({
             {/* 予定件数 */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="forecastCount" className="text-right">
-                予定件数
+                予定件数 <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="forecastCount"
