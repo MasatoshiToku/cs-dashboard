@@ -473,7 +473,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       )}
 
       <div className="border rounded-lg overflow-x-auto">
-        <Table>
+        <Table className="min-w-max">
           <TableHeader>
             <TableRow>
               <TableHead className="sticky left-0 bg-background z-10 min-w-[180px]">
