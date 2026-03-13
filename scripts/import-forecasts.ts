@@ -332,13 +332,13 @@ async function main() {
     if (!dupCheck.has(key)) dupCheck.set(key, []);
     dupCheck.get(key)!.push(entry);
   }
-  const dups = [...dupCheck.entries()].filter(([, v]) => v.length > 1);
+  const dups = Array.from(dupCheck.entries()).filter(([, v]) => v.length > 1);
   if (dups.length > 0) {
     console.log(`\n重複エントリ: ${dups.length}件（同じVC+年月）`);
     // 重複がある場合は合計する（同じVCが異なるセクションに出現する場合）
     // ただしカテゴリが異なる場合はそのまま残す（別カテゴリの作業）
     for (const [key, items] of dups) {
-      const categories = [...new Set(items.map(i => i.category))];
+      const categories = Array.from(new Set(items.map((i: ForecastEntry) => i.category)));
       if (categories.length === 1) {
         // 同じカテゴリの重複 → 合計に統合
         console.log(`  ${key}: ${items.length}件 (同カテゴリ: ${categories[0]}) → 合計`);
@@ -356,7 +356,7 @@ async function main() {
       mergedMap.set(key, { ...entry });
     }
   }
-  const mergedEntries = [...mergedMap.values()];
+  const mergedEntries = Array.from(mergedMap.values());
   console.log(`統合後: ${mergedEntries.length}行`);
 
   // 0件の月を除外する（0件だらけでデータが膨大になるため）
@@ -369,7 +369,7 @@ async function main() {
     categoryCounts.set(entry.category, (categoryCounts.get(entry.category) || 0) + 1);
   }
   console.log('\nカテゴリ別行数:');
-  for (const [cat, count] of [...categoryCounts.entries()].sort()) {
+  for (const [cat, count] of Array.from(categoryCounts.entries()).sort()) {
     console.log(`  ${cat}: ${count}行`);
   }
 
