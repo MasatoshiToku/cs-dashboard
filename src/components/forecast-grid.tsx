@@ -543,8 +543,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                     onClick={() => toggleCategory(category)}
                   >
                     <TableCell
-                      colSpan={months.length + 2}
-                      className="font-semibold"
+                      className="sticky left-0 z-10 bg-background font-semibold"
                     >
                       <span className="flex items-center gap-2">
                         <span
@@ -557,6 +556,10 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         </span>
                       </span>
                     </TableCell>
+                    {months.map(month => (
+                      <TableCell key={month} className="bg-background" />
+                    ))}
+                    <TableCell className="bg-background" />
                   </TableRow>
 
                   {/* クライアント行 */}
