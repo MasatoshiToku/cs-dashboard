@@ -18,19 +18,67 @@ Google Spreadsheet (3シート: issues/forecasts/_META)
   ↓ @googleapis/sheets batchGet (Service Account)
 Next.js Server Components (ISR revalidate:3600)
   ↓
-3ビュー: /dashboard/deadline | /dashboard/vc-progress | /dashboard/status
+4ビュー: /dashboard/deadline | /dashboard/vc-progress | /dashboard/status | /dashboard/forecast
   ↓
 Vercel (hnd1 Tokyo, Basic Auth middleware)
 ```
+
+## ページ一覧
+
+| パス | 概要 |
+|------|------|
+| `/dashboard/deadline` | 締切管理 |
+| `/dashboard/vc-progress` | VC進捗管理 |
+| `/dashboard/status` | ステータス管理 |
+| `/dashboard/forecast` | 予測件数管理（カテゴリ別グリッド、Click-to-edit、月ナビゲーション） |
 
 ## ディレクトリ構成
 
 - `src/lib/` - データ層（types, constants, sheets-client, data-aggregator, utils）
 - `src/components/` - UIコンポーネント
 - `src/components/ui/` - shadcn/ui コンポーネント
-- `src/app/dashboard/` - 3ビュー（deadline, vc-progress, status）
+- `src/app/dashboard/` - 4ビュー（deadline, vc-progress, status, forecast）
 - `src/middleware.ts` - Basic Auth (Edge Runtime)
 - `src/app/api/revalidate/` - On-demand ISR
+- `src/app/api/forecasts/` - 予測データCRUD API
+
+## データモデル
+
+### issues シート
+Backlog課題データ（GAS同期）
+
+### forecasts シート（A-H列）
+
+| 列 | フィールド | 説明 |
+|----|-----------|------|
+| A | vcName | VC名 |
+| B | yearMonth | 対象年月 |
+| C | forecastCount | 予測件数 |
+| D | notes | メモ |
+| E | category | カテゴリ（ダッシュボード管理用拡張列） |
+| F | frequency | 頻度（ダッシュボード管理用拡張列） |
+| G | deadlineDay | 締切日（ダッシュボード管理用拡張列） |
+| H | assignDeadlineDay | アサイン締切日（ダッシュボード管理用拡張列） |
+
+### _META シート
+メタデータ管理
+
+## API Routes
+
+| メソッド | パス | 概要 |
+|---------|------|------|
+| `GET` | `/api/revalidate` | On-demand ISR |
+| `POST` | `/api/forecasts` | 予測データの更新(update)/追加(append) |
+| `DELETE` | `/api/forecasts` | 予測データの行削除 |
+
+## Sheets API 認証
+
+SA (`cs-dashboard-reader@...`) に Editor 権限を付与済み。
+
+| 用途 | 関数 | スコープ |
+|------|------|---------|
+| 読み取り | `getReadAuth()` | readonly scope |
+| 書き込み | `getWriteAuth()` | readwrite scope |
 
 ## コマンド
 
@@ -55,6 +103,7 @@ npm run start    # プロダクションサーバー
 1. GAS `cs-dashboard-sync` が毎朝7:00にBacklog→Spreadsheet同期
 2. ダッシュボードはISR(1h)でSpreadsheetから読み取り
 3. GAS同期完了後に `/api/revalidate?secret=xxx` で即時更新可能
+4. forecast ページからの編集は `POST/DELETE /api/forecasts` → Spreadsheet直接書き込み
 
 ## 注意事項
 
