@@ -42,6 +42,7 @@ interface NewClientData {
   intervalMonths: number | null;
   deadlineDay: number | null;
   assignDeadlineDay: number | null;
+  forecastCount: number;
 }
 
 interface AddClientDialogProps {
@@ -70,10 +71,9 @@ export function AddClientDialog({
   const [vcName, setVcName] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [category, setCategory] = useState<ForecastCategory>('新規VC');
-  const [frequency, setFrequency] = useState<ForecastFrequency>('one-time');
-  const [intervalMonths, setIntervalMonths] = useState('');
-  const [deadlineDay, setDeadlineDay] = useState('');
-  const [assignDeadlineDay, setAssignDeadlineDay] = useState('');
+  const [frequency, setFrequency] = useState<ForecastFrequency>('regular');
+  const [intervalMonths, setIntervalMonths] = useState('1');
+  const [forecastCount, setForecastCount] = useState('');
   const [error, setError] = useState('');
 
   // ルックアップ候補: まだforecastに未登録のVC名のみ表示
@@ -86,10 +86,9 @@ export function AddClientDialog({
     setVcName('');
     setPopoverOpen(false);
     setCategory('新規VC');
-    setFrequency('one-time');
-    setIntervalMonths('');
-    setDeadlineDay('');
-    setAssignDeadlineDay('');
+    setFrequency('regular');
+    setIntervalMonths('1');
+    setForecastCount('');
     setError('');
   }, []);
 
@@ -112,8 +111,7 @@ export function AddClientDialog({
       setCategory(profile.category);
       setFrequency(profile.frequency);
       setIntervalMonths(profile.intervalMonths ? String(profile.intervalMonths) : '');
-      setDeadlineDay(profile.deadlineDay ? String(profile.deadlineDay) : '');
-      setAssignDeadlineDay(profile.assignDeadlineDay ? String(profile.assignDeadlineDay) : '');
+
     }
   }, [existingVcProfiles]);
 
@@ -132,33 +130,23 @@ export function AddClientDialog({
     }
 
     const intMonths = intervalMonths ? Number(intervalMonths) : null;
-    const dlDay = deadlineDay ? Number(deadlineDay) : null;
-    const asDlDay = assignDeadlineDay ? Number(assignDeadlineDay) : null;
 
-    if (frequency === 'regular' && (intMonths === null || intMonths < 1)) {
-      setError('定期の場合、間隔（月数）は1以上で入力してください');
+    if (frequency === 'regular' && (intMonths === null || intMonths < 1 || intMonths > 12)) {
+      setError('間隔は1〜12ヶ月の範囲で入力してください');
       return;
     }
-    if (dlDay !== null && (dlDay < 1 || dlDay > 31)) {
-      setError('期日は1-31の範囲で入力してください');
-      return;
-    }
-    if (asDlDay !== null && (asDlDay < 1 || asDlDay > 31)) {
-      setError('アサイン期日は1-31の範囲で入力してください');
-      return;
-    }
-
     onAdd({
       vcName: trimmedName,
       category,
       frequency,
       intervalMonths: frequency === 'regular' ? intMonths : null,
-      deadlineDay: dlDay,
-      assignDeadlineDay: asDlDay,
+      deadlineDay: null,
+      assignDeadlineDay: null,
+      forecastCount: forecastCount ? Number(forecastCount) : 0,
     });
 
     handleOpenChange(false);
-  }, [vcName, mode, category, frequency, intervalMonths, deadlineDay, assignDeadlineDay, existingVcNames, onAdd, handleOpenChange]);
+  }, [vcName, mode, category, frequency, intervalMonths, forecastCount, existingVcNames, onAdd, handleOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -213,7 +201,7 @@ export function AddClientDialog({
                     <PopoverContent className="w-[300px] p-0" align="start">
                       <Command>
                         <CommandInput placeholder="検索..." />
-                        <CommandList>
+                        <CommandList className="max-h-[200px] overflow-y-auto">
                           <CommandEmpty>見つかりません</CommandEmpty>
                           <CommandGroup>
                             {availableVcNames.map((name) => (
@@ -310,42 +298,24 @@ export function AddClientDialog({
                   className="col-span-3"
                   placeholder="例: 1（毎月）, 3（四半期）, 12（年次）"
                   min={1}
-                  max={120}
+                  max={12}
                 />
               </div>
             )}
 
-            {/* 期日 */}
+            {/* 予定件数 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="deadlineDay" className="text-right">
-                期日(日)
+              <Label htmlFor="forecastCount" className="text-right">
+                予定件数
               </Label>
               <Input
-                id="deadlineDay"
+                id="forecastCount"
                 type="number"
-                value={deadlineDay}
-                onChange={(e) => setDeadlineDay(e.target.value)}
+                value={forecastCount}
+                onChange={(e) => setForecastCount(e.target.value)}
                 className="col-span-3"
-                placeholder="例: 15"
-                min={1}
-                max={31}
-              />
-            </div>
-
-            {/* アサイン期日 */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="assignDeadlineDay" className="text-right">
-                アサイン期日(日)
-              </Label>
-              <Input
-                id="assignDeadlineDay"
-                type="number"
-                value={assignDeadlineDay}
-                onChange={(e) => setAssignDeadlineDay(e.target.value)}
-                className="col-span-3"
-                placeholder="例: 10"
-                min={1}
-                max={31}
+                placeholder="月あたりの予定件数"
+                min={0}
               />
             </div>
 

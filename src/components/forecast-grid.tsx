@@ -321,13 +321,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
     dispatch({ type: 'DELETE_ROW', vcName, yearMonth });
   }, []);
 
-  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; intervalMonths: number | null; deadlineDay: number | null; assignDeadlineDay: number | null }) => {
+  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; intervalMonths: number | null; deadlineDay: number | null; assignDeadlineDay: number | null; forecastCount: number }) => {
     // regular: 最初の月のみ実行を追加（バーチャル行が残りを表示）
     // one-time: 最初の月のみ
     const newRows: ForecastRowExtended[] = [{
       vcName: data.vcName,
       yearMonth: months[0],
-      forecastCount: 0,
+      forecastCount: data.forecastCount,
       notes: '',
       category: data.category,
       frequency: data.frequency,
