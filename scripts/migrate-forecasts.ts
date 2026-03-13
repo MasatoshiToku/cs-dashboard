@@ -49,7 +49,7 @@ async function main() {
   // 1. 現在のデータを取得（A-H列）
   const response = await sheetsClient.spreadsheets.values.get({
     spreadsheetId,
-    range: 'forecasts!A2:I',
+    range: 'forecasts!A2:J',
   });
 
   const rows = response.data.values ?? [];
@@ -73,8 +73,8 @@ async function main() {
     if (needsUpdate) {
       const before = [...row];
 
-      // 配列を9要素に拡張（不足分は空文字で埋める）
-      while (row.length < 9) {
+      // 配列を10要素に拡張（不足分は空文字で埋める）
+      while (row.length < 10) {
         row.push('');
       }
 
@@ -84,6 +84,7 @@ async function main() {
       // row[6]: deadlineDay - 空のまま（null扱い）
       // row[7]: assignDeadlineDay - 空のまま（null扱い）
       // row[8]: intervalMonths - 空のまま（null扱い）
+      // row[9]: startMonth - 空のまま（null扱い）
 
       updatedRows.push({
         row: i + 2, // 1-indexed + ヘッダー行
@@ -116,7 +117,7 @@ async function main() {
 
   // 3. バッチ更新
   const data = updatedRows.map(({ row, after }) => ({
-    range: `forecasts!A${row}:I${row}`,
+    range: `forecasts!A${row}:J${row}`,
     values: [after],
   }));
 

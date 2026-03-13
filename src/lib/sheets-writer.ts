@@ -56,7 +56,7 @@ export async function appendForecastRow(
   await withRetry(() =>
     client.spreadsheets.values.append({
       spreadsheetId,
-      range: 'forecasts!A:I',
+      range: 'forecasts!A:J',
       valueInputOption: 'RAW',
       requestBody: {
         values: [values],

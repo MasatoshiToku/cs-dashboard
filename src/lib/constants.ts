@@ -73,5 +73,5 @@ export const FORECAST_EFFORT_COEFFICIENTS: Record<ForecastCategory, number> = {
 
 export const FORECASTS_EXTENDED_HEADERS = [
   'vcName', 'yearMonth', 'forecastCount', 'notes',
-  'category', 'frequency', 'deadlineDay', 'assignDeadlineDay', 'intervalMonths'
+  'category', 'frequency', 'deadlineDay', 'assignDeadlineDay', 'intervalMonths', 'startMonth'
 ] as const;

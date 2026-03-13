@@ -168,9 +168,9 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       const existingMonths = new Set(rows.map(r => r.yearMonth));
       const interval = template.intervalMonths;
 
-      // 最も古い月を起点に、interval間隔で表示月を計算
+      // startMonth を起点に interval 間隔で表示月を計算（未設定なら最古の既存月）
       const sortedMonths = Array.from(existingMonths).sort();
-      const startYM = sortedMonths[0] || months[0];
+      const startYM = template.startMonth || sortedMonths[0] || months[0];
       const [startY, startM] = startYM.split('/').map(Number);
 
       // 表示月範囲内で該当する月を計算
@@ -188,7 +188,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
             ...template,
             vcName,
             yearMonth: month,
-            forecastCount: 0,
+            forecastCount: template.forecastCount,
             notes: '',
           });
         }
@@ -321,7 +321,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
     dispatch({ type: 'DELETE_ROW', vcName, yearMonth });
   }, []);
 
-  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; intervalMonths: number | null; deadlineDay: number | null; assignDeadlineDay: number | null; forecastCount: number }) => {
+  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; intervalMonths: number | null; startMonth: string | null; deadlineDay: number | null; assignDeadlineDay: number | null; forecastCount: number }) => {
     // regular: 最初の月のみ実行を追加（バーチャル行が残りを表示）
     // one-time: 最初の月のみ
     const newRows: ForecastRowExtended[] = [{
@@ -332,6 +332,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       category: data.category,
       frequency: data.frequency,
       intervalMonths: data.intervalMonths,
+      startMonth: data.startMonth,
       deadlineDay: data.deadlineDay,
       assignDeadlineDay: data.assignDeadlineDay,
     }];
@@ -354,7 +355,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
           const row = { ...state.rows[rowIdx], ...changes };
           const sheetRow = rowIdx + 2; // A2始まりなので+2
           updates.push({
-            range: `forecasts!A${sheetRow}:I${sheetRow}`,
+            range: `forecasts!A${sheetRow}:J${sheetRow}`,
             values: [[
               row.vcName,
               row.yearMonth,
@@ -365,6 +366,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
               row.deadlineDay ?? '',
               row.assignDeadlineDay ?? '',
               row.intervalMonths ?? '',
+              row.startMonth ?? '',
             ]],
           });
         }
@@ -400,6 +402,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
               deadlineDay: row.deadlineDay ?? null,
               assignDeadlineDay: row.assignDeadlineDay ?? null,
               intervalMonths: row.intervalMonths ?? null,
+              startMonth: row.startMonth ?? null,
             },
           }),
         });

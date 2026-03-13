@@ -45,6 +45,7 @@ export interface ForecastRowExtended extends ForecastRow {
   category: ForecastCategory;
   frequency: ForecastFrequency;
   intervalMonths: number | null;  // 定期の場合の月間隔（1,2,3,6,12等）
+  startMonth: string | null;  // 初回年月 "2025/04" 形式
   deadlineDay: number | null;
   assignDeadlineDay: number | null;
 }

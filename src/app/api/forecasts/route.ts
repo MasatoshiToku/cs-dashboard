@@ -61,6 +61,12 @@ function validateForecastData(data: Record<string, unknown>): string | null {
     return 'intervalMonths is required when frequency is regular';
   }
 
+  if (data.startMonth !== undefined && data.startMonth !== null) {
+    if (typeof data.startMonth !== 'string' || !/^\d{4}\/\d{2}$/.test(data.startMonth)) {
+      return 'startMonth must be in YYYY/MM format';
+    }
+  }
+
   return null;
 }
 
@@ -121,6 +127,7 @@ export async function POST(request: NextRequest) {
         data.deadlineDay ?? null,
         data.assignDeadlineDay ?? null,
         data.intervalMonths ?? null,
+        data.startMonth ?? null,
       ];
 
       await appendForecastRow(SPREADSHEET_ID, values);

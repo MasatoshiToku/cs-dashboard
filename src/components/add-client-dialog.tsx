@@ -40,6 +40,7 @@ interface NewClientData {
   category: ForecastCategory;
   frequency: ForecastFrequency;
   intervalMonths: number | null;
+  startMonth: string | null;
   deadlineDay: number | null;
   assignDeadlineDay: number | null;
   forecastCount: number;
@@ -73,6 +74,10 @@ export function AddClientDialog({
   const [category, setCategory] = useState<ForecastCategory>('新規VC');
   const [frequency, setFrequency] = useState<ForecastFrequency>('regular');
   const [intervalMonths, setIntervalMonths] = useState('1');
+  const [startMonth, setStartMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [forecastCount, setForecastCount] = useState('');
 
   // ルックアップ候補: まだforecastに未登録のVC名のみ表示
@@ -87,6 +92,7 @@ export function AddClientDialog({
     setCategory('新規VC');
     setFrequency('regular');
     setIntervalMonths('1');
+    setStartMonth(`${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}`);
     setForecastCount('');
   }, []);
 
@@ -149,6 +155,10 @@ export function AddClientDialog({
         alert('間隔は1〜12ヶ月の範囲で入力してください');
         return;
       }
+      if (!/^\d{4}\/\d{2}$/.test(startMonth)) {
+        alert('初回年月はYYYY/MM形式で入力してください');
+        return;
+      }
     }
 
     const fcNum = Number(forecastCount);
@@ -162,13 +172,14 @@ export function AddClientDialog({
       category,
       frequency,
       intervalMonths: frequency === 'regular' ? Number(intervalMonths) : null,
+      startMonth: frequency === 'regular' ? startMonth : null,
       deadlineDay: null,
       assignDeadlineDay: null,
       forecastCount: fcNum,
     });
 
     handleOpenChange(false);
-  }, [vcName, category, frequency, intervalMonths, forecastCount, existingVcNames, onAdd, handleOpenChange]);
+  }, [vcName, category, frequency, intervalMonths, startMonth, forecastCount, existingVcNames, onAdd, handleOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -321,6 +332,19 @@ export function AddClientDialog({
                   placeholder="例: 1（毎月）, 3（四半期）, 12（年次）"
                   min={1}
                   max={12}
+                />
+              </div>
+            )}
+
+            {/* 初回年月 - 定期の場合のみ表示 */}
+            {frequency === 'regular' && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">初回年月</Label>
+                <Input
+                  value={startMonth}
+                  onChange={(e) => setStartMonth(e.target.value)}
+                  className="col-span-3"
+                  placeholder="例: 2025/04"
                 />
               </div>
             )}

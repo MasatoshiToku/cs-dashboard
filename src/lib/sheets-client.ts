@@ -42,7 +42,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
 
   const response = await sheetsClient.spreadsheets.values.batchGet({
     spreadsheetId,
-    ranges: ['issues!A2:V', 'forecasts!A2:I', '_META!A:B'],
+    ranges: ['issues!A2:V', 'forecasts!A2:J', '_META!A:B'],
   });
 
   const [issuesData, forecastsData, metaData] = response.data.valueRanges || [];
@@ -75,6 +75,7 @@ function parseForecasts(rows: string[][]): ForecastRowExtended[] {
     deadlineDay: row[6] ? Number(row[6]) : null,
     assignDeadlineDay: row[7] ? Number(row[7]) : null,
     intervalMonths: row[8] ? Number(row[8]) : null,
+    startMonth: row[9] || null,
   }));
 }
 
