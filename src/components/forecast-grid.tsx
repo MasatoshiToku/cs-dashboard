@@ -135,8 +135,8 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
     const today = new Date();
     const result: string[] = [];
 
-    // 過去24ヶ月 + 今月 + 未来23ヶ月 = 合計48ヶ月
-    for (let i = -24; i <= 23; i++) {
+    // 過去60ヶ月 + 今月 + 未来59ヶ月 = 120ヶ月（10年間）
+    for (let i = -60; i <= 59; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
       const ym = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
       result.push(ym);
