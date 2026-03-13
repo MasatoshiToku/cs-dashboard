@@ -375,7 +375,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
         const res = await fetch('/api/forecasts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'update', data: { updates } }),
+          body: JSON.stringify({ action: 'update', data: updates }),
         });
         if (!res.ok) {
           const err = await res.json();

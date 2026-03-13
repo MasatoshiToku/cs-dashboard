@@ -4,7 +4,7 @@ import type { DashboardData, IssueRow, ForecastRowExtended, ForecastCategory, Fo
 import { ISSUES_HEADERS } from './constants';
 
 /** Strip trailing whitespace and spurious literal \n from env var values. */
-function cleanEnv(value: string | undefined): string {
+export function cleanEnv(value: string | undefined): string {
   return (value || '').replace(/\\n$/g, '').trim();
 }
 

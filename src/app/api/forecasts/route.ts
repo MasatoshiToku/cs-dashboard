@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { batchUpdateForecasts, appendForecastRow, deleteForecastRows } from '@/lib/sheets-writer';
+import { cleanEnv } from '@/lib/sheets-client';
 import { FORECAST_CATEGORIES } from '@/lib/constants';
 import type { ForecastCategory, ForecastFrequency } from '@/lib/types';
 
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID!;
+const SPREADSHEET_ID = cleanEnv(process.env.GOOGLE_SPREADSHEET_ID);
 const VALID_FREQUENCIES: ForecastFrequency[] = ['regular', 'one-time'];
 const YEAR_MONTH_REGEX = /^\d{4}\/\d{2}$/;
 
