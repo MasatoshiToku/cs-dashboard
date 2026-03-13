@@ -96,6 +96,17 @@ function gridReducer(state: GridState, action: GridAction): GridState {
   }
 }
 
+// --- ヒートマップ ---
+
+function getHeatmapStyle(value: number | null | undefined): string {
+  if (!value || value === 0) return '';
+  if (value < 5) return 'bg-blue-50/60 text-blue-700';
+  if (value < 15) return 'bg-blue-100/60 text-blue-800';
+  if (value < 30) return 'bg-blue-200/50 text-blue-900';
+  if (value < 50) return 'bg-blue-300/40 text-blue-950 font-semibold';
+  return 'bg-blue-400/30 text-blue-950 font-bold';
+}
+
 // --- Component ---
 
 interface ForecastGridProps {
@@ -495,12 +506,12 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
         </div>
       )}
 
-      <div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.04)] overflow-hidden ring-1 ring-gray-950/[0.04]">
         <div className="overflow-x-auto forecast-scrollbar">
           <Table style={{ minWidth: `${200 + months.length * 100 + 60}px` }}>
             <TableHeader>
-              <TableRow className="bg-gray-50/80 border-b border-gray-200">
-                <TableHead className="sticky left-0 z-20 bg-gray-50/80 w-[200px] min-w-[200px] font-semibold text-gray-700 text-xs uppercase tracking-wider sticky-col-shadow">
+              <TableRow className="border-b border-gray-100">
+                <TableHead className="sticky left-0 z-20 bg-white w-[200px] min-w-[200px] text-[11px] font-semibold uppercase tracking-wider text-gray-400 sticky-col-shadow py-3">
                   クライアント
                 </TableHead>
                 {months.map((m, i) => {
@@ -512,18 +523,18 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                       key={m}
                       id={m === currentMonth ? 'current-month' : undefined}
                       className={cn(
-                        "text-center w-[100px] min-w-[100px] whitespace-nowrap text-xs",
+                        "text-center w-[100px] min-w-[100px] whitespace-nowrap py-3",
                         m === currentMonth
-                          ? "bg-blue-600 text-white font-semibold"
-                          : "text-gray-500 font-medium"
+                          ? "bg-gray-900 text-white text-xs font-semibold"
+                          : "text-[11px] text-gray-400 font-medium"
                       )}
                     >
-                      {showYear && <div className="text-[9px] uppercase tracking-widest opacity-60 mb-0.5">{year}</div>}
+                      {showYear && <div className="text-[9px] uppercase tracking-[0.2em] opacity-50 mb-0.5">{year}</div>}
                       <div className="tabular-nums">{month}月</div>
                     </TableHead>
                   );
                 })}
-                <TableHead className="w-[50px] bg-gray-50/80" />
+                <TableHead className="w-[50px] bg-white" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -536,22 +547,24 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                   <React.Fragment key={category}>
                     {/* カテゴリヘッダー */}
                     <TableRow
-                      className="cursor-pointer transition-colors hover:bg-gray-50/60"
+                      className="cursor-pointer group/cat"
                       onClick={() => toggleCategory(category)}
                     >
-                      <TableCell
-                        className="sticky left-0 z-10 bg-white py-3 border-l-[3px] sticky-col-shadow"
-                        style={{ borderLeftColor: FORECAST_CATEGORY_COLORS[category] }}
-                      >
-                        <span className="flex items-center gap-2.5">
+                      <TableCell className="sticky left-0 z-10 bg-white py-3.5 sticky-col-shadow">
+                        <span className="flex items-center gap-3">
                           <span
-                            className="text-[10px] text-gray-400 transition-transform duration-200 inline-block"
-                            style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+                            className="flex h-6 w-6 items-center justify-center rounded-lg transition-colors"
+                            style={{ backgroundColor: FORECAST_CATEGORY_COLORS[category] + '15' }}
                           >
-                            ▼
+                            <span
+                              className="text-[10px] transition-transform duration-200 inline-block"
+                              style={{ color: FORECAST_CATEGORY_COLORS[category], transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+                            >
+                              ▼
+                            </span>
                           </span>
-                          <span className="font-semibold text-sm text-gray-800">{category}</span>
-                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 tabular-nums">
+                          <span className="font-semibold text-[13px] text-gray-800">{category}</span>
+                          <span className="inline-flex h-5 items-center rounded-md bg-gray-100 px-1.5 text-[10px] font-semibold text-gray-500 tabular-nums">
                             {categoryRows.length}
                           </span>
                         </span>
@@ -560,14 +573,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         <TableCell
                           key={month}
                           className={cn(
-                            "text-center bg-white tabular-nums",
-                            isCollapsed && "text-xs font-semibold text-gray-600",
-                            month === currentMonth && (isCollapsed ? "bg-blue-50 text-blue-700 font-bold" : "bg-blue-50/30")
+                            "text-center bg-white tabular-nums transition-colors",
+                            isCollapsed && "text-[12px] font-semibold",
+                            isCollapsed && categorySubtotals[category]?.[month] && getHeatmapStyle(categorySubtotals[category][month]),
+                            !isCollapsed && month === currentMonth && "bg-gray-50/50"
                           )}
                         >
-                          {isCollapsed && categorySubtotals[category]?.[month]
-                            ? categorySubtotals[category][month]
-                            : null}
+                          {isCollapsed && categorySubtotals[category]?.[month] ? categorySubtotals[category][month] : null}
                         </TableCell>
                       ))}
                       <TableCell className="bg-white" />
@@ -575,23 +587,28 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
 
                     {/* クライアント行 */}
                     {!isCollapsed && categoryRows.map(({ vcName, months: monthData }) => (
-                      <TableRow key={vcName} className="group transition-colors hover:bg-gray-50/70 border-b border-gray-100/80">
-                        <TableCell className="sticky left-0 z-10 bg-white group-hover:bg-gray-50 transition-colors text-sm sticky-col-shadow">
-                          <span className="flex items-center gap-2.5 pl-5">
-                            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: FORECAST_CATEGORY_COLORS[category] }} />
+                      <TableRow key={vcName} className="group border-b border-gray-50 transition-colors hover:bg-gray-50/50">
+                        <TableCell className="sticky left-0 z-10 bg-white group-hover:bg-gray-50/50 transition-colors text-[13px] sticky-col-shadow py-2">
+                          <span className="flex items-center gap-2.5 pl-6">
+                            <span
+                              className="h-[5px] w-[5px] rounded-full flex-shrink-0 ring-2 ring-white"
+                              style={{ backgroundColor: FORECAST_CATEGORY_COLORS[category] }}
+                            />
                             <span className="font-medium text-gray-700">{vcName}</span>
                           </span>
                         </TableCell>
                         {months.map(month => {
                           const row = monthData[month];
                           const isVirtual = filledRowsData.virtualKeys.has(makeKey(vcName, month));
+                          const cellValue = row?.forecastCount ?? null;
                           return (
                             <TableCell
                               key={month}
                               className={cn(
-                                "p-0 transition-colors border-b border-gray-100/80",
-                                month === currentMonth && "bg-blue-50/40",
-                                isVirtual && "bg-gray-50/40"
+                                "p-0 transition-colors border-b border-gray-50",
+                                month === currentMonth && "bg-gray-900/[0.02]",
+                                !isVirtual && cellValue && cellValue > 0 && getHeatmapStyle(cellValue),
+                                isVirtual && "bg-gray-50/30"
                               )}
                             >
                               <ForecastCell
@@ -609,7 +626,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         })}
                         <TableCell className="text-center">
                           <button
-                            className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-6 w-6 rounded-full hover:bg-red-50 hover:text-red-500 inline-flex items-center justify-center text-gray-300"
+                            className="opacity-0 group-hover:opacity-100 transition-all duration-300 h-5 w-5 rounded-full hover:bg-red-500 hover:text-white inline-flex items-center justify-center text-gray-300 hover:scale-110"
                             onClick={() => {
                               // そのVCの表示月分を全削除
                               for (const month of months) {
@@ -619,7 +636,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                               }
                             }}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                           </button>
                         </TableCell>
                       </TableRow>
@@ -627,22 +644,25 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
 
                     {/* 小計行 */}
                     {!isCollapsed && categoryRows.length > 0 && (
-                      <TableRow className="border-t border-gray-200/60">
-                        <TableCell className="sticky left-0 z-10 bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-wider py-1.5 pl-8 sticky-col-shadow">
-                          小計
+                      <TableRow>
+                        <TableCell className="sticky left-0 z-10 bg-gray-50/80 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] py-2 pl-9 sticky-col-shadow">
+                          Subtotal
                         </TableCell>
-                        {months.map(month => (
-                          <TableCell
-                            key={month}
-                            className={cn(
-                              "text-center text-xs font-semibold text-gray-500 bg-gray-50 py-1.5 tabular-nums",
-                              month === currentMonth && "bg-blue-100/40 text-blue-700"
-                            )}
-                          >
-                            {categorySubtotals[category]?.[month] || <span className="text-gray-300">-</span>}
-                          </TableCell>
-                        ))}
-                        <TableCell className="bg-gray-50" />
+                        {months.map(month => {
+                          const val = categorySubtotals[category]?.[month];
+                          return (
+                            <TableCell
+                              key={month}
+                              className={cn(
+                                "text-center text-[11px] font-bold text-gray-400 bg-gray-50/80 py-2 tabular-nums",
+                                month === currentMonth && "text-gray-600 bg-gray-100/60"
+                              )}
+                            >
+                              {val || <span className="text-gray-200">—</span>}
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell className="bg-gray-50/80" />
                       </TableRow>
                     )}
                   </React.Fragment>
@@ -650,22 +670,26 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
               })}
 
               {/* 合計行 */}
-              <TableRow className="border-t-2 border-gray-300">
-                <TableCell className="sticky left-0 z-10 bg-gray-100 font-bold text-sm text-gray-800 py-2.5 sticky-col-shadow">
-                  合計
+              <TableRow>
+                <TableCell className="sticky left-0 z-10 bg-gray-50 font-bold text-[13px] text-gray-900 py-3 sticky-col-shadow border-t-2 border-gray-200">
+                  Total
                 </TableCell>
-                {months.map(month => (
-                  <TableCell
-                    key={month}
-                    className={cn(
-                      "text-center font-bold text-sm bg-gray-100 py-2.5 tabular-nums",
-                      month === currentMonth && "bg-blue-100/60 text-blue-900"
-                    )}
-                  >
-                    {grandTotals[month] || <span className="text-gray-300">-</span>}
-                  </TableCell>
-                ))}
-                <TableCell className="bg-gray-100" />
+                {months.map(month => {
+                  const val = grandTotals[month];
+                  return (
+                    <TableCell
+                      key={month}
+                      className={cn(
+                        "text-center font-bold text-[13px] bg-gray-50 py-3 tabular-nums border-t-2 border-gray-200",
+                        month === currentMonth && "bg-gray-100 text-gray-900",
+                        val && val > 0 ? "text-gray-800" : "text-gray-200"
+                      )}
+                    >
+                      {val || '—'}
+                    </TableCell>
+                  );
+                })}
+                <TableCell className="bg-gray-50 border-t-2 border-gray-200" />
               </TableRow>
             </TableBody>
           </Table>

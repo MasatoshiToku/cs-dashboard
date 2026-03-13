@@ -35,51 +35,54 @@ export default async function ForecastPage() {
   )).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* サマリーカード */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* 登録クライアント数 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-blue-100/80 bg-gradient-to-br from-blue-50/80 via-white to-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-blue-200/80">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600/80">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              登録クライアント
+        <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_12px_40px_rgba(59,130,246,0.08)] hover:-translate-y-0.5">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.03] to-transparent" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-blue-600">
+              <div className="h-1 w-1 rounded-full bg-blue-500" />
+              Clients
             </div>
-            <div className="mt-2 text-4xl font-bold tracking-tight text-blue-950">{totalClients}</div>
-            <div className="mt-1.5 text-sm text-blue-600/60">うち定期 {regularClients} 件</div>
+            <div className="mt-4 text-5xl font-extrabold tracking-tighter bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">{totalClients}</div>
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
+              <span>定期</span>
+              <span className="font-semibold text-gray-600">{regularClients}</span>
+            </div>
           </div>
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-blue-200/20 transition-transform duration-500 group-hover:scale-110" />
-          <div className="absolute -right-2 -top-2 h-16 w-16 rounded-full bg-blue-200/15" />
+          <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-gradient-to-br from-blue-100/40 to-blue-50/20 transition-transform duration-700 group-hover:scale-150" />
         </div>
 
         {/* 今月の予測件数 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-emerald-100/80 bg-gradient-to-br from-emerald-50/80 via-white to-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-emerald-200/80">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-sm font-medium text-emerald-600/80">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-              今月の予測件数
+        <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_12px_40px_rgba(16,185,129,0.08)] hover:-translate-y-0.5">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+              <div className="h-1 w-1 rounded-full bg-emerald-500" />
+              This Month
             </div>
-            <div className="mt-2 text-4xl font-bold tracking-tight text-emerald-950">{thisMonthTotal}</div>
-            <div className="mt-1.5 text-sm text-emerald-600/60">{currentMonth}</div>
+            <div className="mt-4 text-5xl font-extrabold tracking-tighter bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">{thisMonthTotal}</div>
+            <div className="mt-2 text-sm text-gray-400">{currentMonth}</div>
           </div>
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-emerald-200/20 transition-transform duration-500 group-hover:scale-110" />
-          <div className="absolute -right-2 -top-2 h-16 w-16 rounded-full bg-emerald-200/15" />
+          <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-gradient-to-br from-emerald-100/40 to-emerald-50/20 transition-transform duration-700 group-hover:scale-150" />
         </div>
 
-        {/* カテゴリ数 */}
-        <div className="group relative overflow-hidden rounded-2xl border border-violet-100/80 bg-gradient-to-br from-violet-50/80 via-white to-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-violet-200/80">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-sm font-medium text-violet-600/80">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-              カテゴリ
+        {/* カテゴリ */}
+        <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_12px_40px_rgba(139,92,246,0.08)] hover:-translate-y-0.5">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.03] to-transparent" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-violet-600">
+              <div className="h-1 w-1 rounded-full bg-violet-500" />
+              Categories
             </div>
-            <div className="mt-2 text-4xl font-bold tracking-tight text-violet-950">
+            <div className="mt-4 text-5xl font-extrabold tracking-tighter bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
               {Array.from(new Set(forecasts.map(f => f.category))).length || 0}
             </div>
-            <div className="mt-1.5 text-sm text-violet-600/60">アクティブカテゴリ</div>
+            <div className="mt-2 text-sm text-gray-400">アクティブ</div>
           </div>
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-violet-200/20 transition-transform duration-500 group-hover:scale-110" />
-          <div className="absolute -right-2 -top-2 h-16 w-16 rounded-full bg-violet-200/15" />
+          <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-gradient-to-br from-violet-100/40 to-violet-50/20 transition-transform duration-700 group-hover:scale-150" />
         </div>
       </div>
 

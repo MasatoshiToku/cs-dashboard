@@ -181,21 +181,22 @@ export function AddClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[480px] rounded-2xl p-0 overflow-hidden">
-        <div className="px-6 pt-6 pb-4 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100">
-          <DialogTitle className="text-lg font-semibold text-gray-900">クライアント追加</DialogTitle>
-          <DialogDescription className="text-sm text-gray-500 mt-1">
-            予測データに追加するクライアントを選択します
+      <DialogContent className="sm:max-w-[460px] rounded-2xl p-0 overflow-hidden shadow-[0_25px_65px_-5px_rgba(0,0,0,0.15)] border-0">
+        {/* ヘッダー */}
+        <div className="px-6 pt-6 pb-4">
+          <DialogTitle className="text-[15px] font-semibold text-gray-900">クライアント追加</DialogTitle>
+          <DialogDescription className="text-[12px] text-gray-400 mt-1">
+            予測データに追加するクライアントを選択
           </DialogDescription>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="px-6 py-5 space-y-5">
+          <div className="px-6 pb-6 space-y-4">
             {/* セグメントコントロール */}
-            <div className="flex rounded-xl bg-gray-100/80 p-1 gap-1">
+            <div className="flex rounded-lg bg-gray-100/60 p-0.5 gap-0.5">
               <button
                 type="button"
                 className={cn(
-                  "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex-1 rounded-md px-3 py-1.5 text-[12px] font-medium transition-all duration-200",
                   mode === 'lookup'
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
@@ -207,7 +208,7 @@ export function AddClientDialog({
               <button
                 type="button"
                 className={cn(
-                  "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex-1 rounded-md px-3 py-1.5 text-[12px] font-medium transition-all duration-200",
                   mode === 'new'
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
@@ -221,7 +222,7 @@ export function AddClientDialog({
             {/* クライアント名 */}
             {mode === 'lookup' ? (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <Label className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                   クライアント
                 </Label>
                 <div className="col-span-3">
@@ -231,7 +232,7 @@ export function AddClientDialog({
                         variant="outline"
                         role="combobox"
                         aria-expanded={popoverOpen}
-                        className="w-full justify-between font-normal"
+                        className="w-full justify-between font-normal text-[13px] h-9 rounded-lg border-gray-200"
                       >
                         {vcName || 'クライアントを検索...'}
                         <span className="ml-2 h-4 w-4 shrink-0 opacity-50">▼</span>
@@ -268,14 +269,14 @@ export function AddClientDialog({
               </div>
             ) : (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="vcName" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <Label htmlFor="vcName" className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                   クライアント名
                 </Label>
                 <Input
                   id="vcName"
                   value={vcName}
                   onChange={(e) => setVcName(e.target.value)}
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg border-gray-200 text-[13px] h-9"
                   placeholder="新規クライアント名を入力"
                   autoFocus
                 />
@@ -284,12 +285,12 @@ export function AddClientDialog({
 
             {/* カテゴリ */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <Label htmlFor="category" className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                 カテゴリ
               </Label>
               <div className="col-span-3">
                 <Select value={category} onValueChange={(v) => setCategory(v as ForecastCategory)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-lg border-gray-200 text-[13px] h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -305,12 +306,12 @@ export function AddClientDialog({
 
             {/* 頻度 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="frequency" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <Label htmlFor="frequency" className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                 頻度
               </Label>
               <div className="col-span-3">
                 <Select value={frequency} onValueChange={(v) => setFrequency(v as ForecastFrequency)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-lg border-gray-200 text-[13px] h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -327,14 +328,14 @@ export function AddClientDialog({
             {/* 間隔（月数） - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <Label className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                   間隔（月数）
                 </Label>
                 <Input
                   type="number"
                   value={intervalMonths}
                   onChange={(e) => setIntervalMonths(e.target.value)}
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg border-gray-200 text-[13px] h-9"
                   placeholder="例: 1（毎月）, 3（四半期）, 12（年次）"
                   min={1}
                   max={12}
@@ -345,11 +346,11 @@ export function AddClientDialog({
             {/* 初回年月 - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">初回年月</Label>
+                <Label className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">初回年月</Label>
                 <Input
                   value={startMonth}
                   onChange={(e) => setStartMonth(e.target.value)}
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg border-gray-200 text-[13px] h-9"
                   placeholder="例: 2025/04"
                 />
               </div>
@@ -357,7 +358,7 @@ export function AddClientDialog({
 
             {/* 予定件数 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="forecastCount" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <Label htmlFor="forecastCount" className="text-right text-[11px] font-medium text-gray-400 uppercase tracking-wide">
                 予定件数
               </Label>
               <Input
@@ -365,17 +366,18 @@ export function AddClientDialog({
                 type="number"
                 value={forecastCount}
                 onChange={(e) => setForecastCount(e.target.value)}
-                className="col-span-3"
+                className="col-span-3 rounded-lg border-gray-200 text-[13px] h-9"
                 placeholder="月あたりの予定件数"
                 min={0}
               />
             </div>
           </div>
-          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} className="rounded-lg text-gray-500 hover:text-gray-700">
+
+          <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-2">
+            <Button type="button" variant="ghost" className="h-8 rounded-lg text-[12px] text-gray-500" onClick={() => handleOpenChange(false)}>
               キャンセル
             </Button>
-            <Button type="submit" className="rounded-lg shadow-sm">
+            <Button type="submit" className="h-8 rounded-lg text-[12px] bg-gray-900 hover:bg-gray-800 text-white shadow-sm">
               追加
             </Button>
           </div>

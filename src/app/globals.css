@@ -58,7 +58,9 @@
   }
 }
 
-/* ===== Premium Dashboard Styles ===== */
+/* ===== Premium Dashboard ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   html {
@@ -66,37 +68,48 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
 }
 
-/* Forecast grid scrollbar */
+/* Forecast scrollbar — minimal */
 .forecast-scrollbar::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
 }
 .forecast-scrollbar::-webkit-scrollbar-track {
   background: transparent;
-  margin: 0 8px;
 }
 .forecast-scrollbar::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.15);
-  border-radius: 4px;
-  transition: background 0.2s;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
 }
 .forecast-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.3);
+  background: rgba(0, 0, 0, 0.16);
 }
 
-/* Sticky column separator */
+/* Sticky column edge */
 .sticky-col-shadow {
-  box-shadow: 3px 0 12px -4px rgba(0, 0, 0, 0.06);
+  box-shadow: 2px 0 8px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Slide-in animation */
-@keyframes slide-in-from-top {
-  from { opacity: 0; transform: translateY(-6px); }
+/* Animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-in {
-  animation: slide-in-from-top 0.25s ease-out;
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out;
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.5) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 /* Tabular nums for the grid */

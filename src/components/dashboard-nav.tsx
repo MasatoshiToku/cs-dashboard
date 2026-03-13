@@ -15,7 +15,7 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="inline-flex gap-0.5 rounded-xl bg-gray-100/70 p-1">
+    <nav className="inline-flex items-center gap-0.5 rounded-lg bg-gray-100/60 p-0.5">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (
@@ -23,13 +23,13 @@ export function DashboardNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
+              "relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-all duration-200",
               isActive
-                ? "bg-white text-gray-900 shadow-sm shadow-gray-200/50"
-                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                ? "bg-white text-gray-900 shadow-sm shadow-gray-200/80"
+                : "text-gray-500 hover:text-gray-700"
             )}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("transition-colors", isActive ? "text-blue-600" : "text-gray-400")}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn(isActive ? "text-gray-900" : "text-gray-400")}>
               <path d={item.icon} />
             </svg>
             {item.label}

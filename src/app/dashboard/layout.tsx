@@ -13,11 +13,11 @@ export default async function DashboardLayout({
   const data = await fetchDashboardData();
 
   return (
-    <div className="min-h-screen bg-gray-50/40">
+    <div className="min-h-screen bg-[#fafafa]">
       <DashboardHeader meta={data.meta} />
-      <div className="mx-auto max-w-[1600px] px-6 py-6">
+      <div className="mx-auto max-w-[1600px] px-6 py-8">
         <DashboardNav />
-        <main className="mt-6">{children}</main>
+        <main className="mt-8">{children}</main>
       </div>
     </div>
   );
