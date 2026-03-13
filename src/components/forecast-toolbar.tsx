@@ -11,11 +11,6 @@ interface ForecastToolbarProps {
   selectedCategory: ForecastCategory | 'all';
   onCategoryChange: (category: ForecastCategory | 'all') => void;
 
-  // 月ナビゲーション
-  displayStartMonth: string;  // "2025/04" 形式
-  onNavigateMonths: (direction: 'prev' | 'next') => void;
-  monthRange: string;  // "2025/04 - 2026/03" 表示用
-
   // 保存
   hasUnsavedChanges: boolean;
   isSaving: boolean;
@@ -29,8 +24,6 @@ interface ForecastToolbarProps {
 export function ForecastToolbar({
   selectedCategory,
   onCategoryChange,
-  onNavigateMonths,
-  monthRange,
   hasUnsavedChanges,
   isSaving,
   onSave,
@@ -94,27 +87,6 @@ export function ForecastToolbar({
               ))}
             </SelectContent>
           </Select>
-
-          {/* 月ナビゲーション */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onNavigateMonths('prev')}
-            >
-              ←
-            </Button>
-            <span className="text-sm text-muted-foreground min-w-[160px] text-center">
-              {monthRange}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onNavigateMonths('next')}
-            >
-              →
-            </Button>
-          </div>
         </div>
 
         <div className="flex items-center gap-2">

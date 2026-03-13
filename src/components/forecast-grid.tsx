@@ -115,30 +115,31 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
   const [state, dispatch] = useReducer(gridReducer, initialState);
 
   const [selectedCategory, setSelectedCategory] = useState<ForecastCategory | 'all'>('all');
-  const [monthOffset, setMonthOffset] = useState(0);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<ForecastCategory>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
-  // --- 月の計算 ---
+  // --- 月の計算（データ全月 + 今月から12ヶ月先） ---
   const months = useMemo(() => {
-    const today = new Date();
-    const startMonth = today.getMonth() + monthOffset; // 0-indexed
-    const startYear = today.getFullYear() + Math.floor(startMonth / 12);
-    const adjustedMonth = ((startMonth % 12) + 12) % 12;
+    const allMonths = new Set<string>();
 
-    const result: string[] = [];
-    for (let i = 0; i < 12; i++) {
-      const m = adjustedMonth + i;
-      const y = startYear + Math.floor(m / 12);
-      const mm = ((m % 12) + 12) % 12 + 1;
-      result.push(`${y}/${String(mm).padStart(2, '0')}`);
+    // データに存在する月を収集
+    for (const row of [...state.rows, ...state.added]) {
+      allMonths.add(row.yearMonth);
     }
-    return result;
-  }, [monthOffset]);
 
-  const monthRange = `${months[0]} - ${months[months.length - 1]}`;
+    // 今月から12ヶ月先まで追加
+    const today = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      const ym = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+      allMonths.add(ym);
+    }
+
+    // ソートして返す
+    return Array.from(allMonths).sort();
+  }, [state.rows, state.added]);
 
   // --- 全行（元データ + 追加 - 削除） ---
   const allRows = useMemo(() => {
@@ -458,9 +459,6 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       <ForecastToolbar
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-        displayStartMonth={months[0]}
-        onNavigateMonths={(dir) => setMonthOffset(prev => prev + (dir === 'prev' ? -3 : 3))}
-        monthRange={monthRange}
         hasUnsavedChanges={hasUnsavedChanges}
         isSaving={isSaving}
         onSave={handleSave}
@@ -481,11 +479,17 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
               <TableHead className="sticky left-0 bg-background z-10 min-w-[180px]">
                 クライアント
               </TableHead>
-              {months.map(m => (
-                <TableHead key={m} className="text-center min-w-[80px]">
-                  {m.replace(/^\d{4}\//, '')}月
-                </TableHead>
-              ))}
+              {months.map((m, i) => {
+                const [year, month] = m.split('/');
+                const prevYear = i > 0 ? months[i - 1].split('/')[0] : '';
+                const showYear = year !== prevYear;
+                return (
+                  <TableHead key={m} className="text-center min-w-[80px] whitespace-nowrap">
+                    {showYear && <div className="text-xs text-muted-foreground">{year}</div>}
+                    {month}月
+                  </TableHead>
+                );
+              })}
               <TableHead className="w-[60px]" />
             </TableRow>
           </TableHeader>
