@@ -26,7 +26,7 @@ function getSheetsClient(auth: GoogleAuth): sheets_v4.Sheets {
 }
 
 export async function fetchDashboardData(): Promise<DashboardData> {
-  const spreadsheetId = (process.env.GOOGLE_SPREADSHEET_ID || '').trim();
+  const spreadsheetId = cleanEnv(process.env.GOOGLE_SPREADSHEET_ID);
   const auth = getAuth();
   const sheetsClient = getSheetsClient(auth);
 
