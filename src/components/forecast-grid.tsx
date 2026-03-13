@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useReducer, useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import React, { useReducer, useCallback, useMemo, useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -120,7 +120,6 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
 
   // --- 今月（ハイライト用） ---
   const currentMonth = useMemo(() => {
@@ -128,8 +127,6 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
     return `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}`;
   }, []);
 
-  // --- スクロールコンテナ ref ---
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // --- 月の計算（過去24ヶ月 + 今月 + 未来23ヶ月 = 合計48ヶ月） ---
   const months = useMemo(() => {
@@ -154,25 +151,16 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
     return result.sort();
   }, [state.rows, state.added]);
 
-  // --- 初期スクロール位置を今月に設定 ---
+  // --- 初期スクロール位置を今月に設定（scrollIntoView方式） ---
   useEffect(() => {
-    if (hasScrolled) return;
-
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const today = new Date();
-    const currentMonthStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}`;
-    const monthIndex = months.indexOf(currentMonthStr);
-
-    if (monthIndex >= 0) {
-      requestAnimationFrame(() => {
-        const scrollTo = 180 + monthIndex * 100 - 300;
-        container.scrollLeft = Math.max(0, scrollTo);
-        setHasScrolled(true);
-      });
+    const el = document.getElementById('current-month');
+    if (el) {
+      const timer = setTimeout(() => {
+        el.scrollIntoView({ inline: 'center', block: 'nearest' });
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [months, hasScrolled]);
+  }, [months]);
 
   // --- 全行（元データ + 追加 - 削除） ---
   const allRows = useMemo(() => {
@@ -506,7 +494,6 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       )}
 
       <div
-        ref={scrollContainerRef}
         className="border rounded-lg overflow-x-auto"
       >
         <Table style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
@@ -522,6 +509,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                 return (
                   <TableHead
                     key={m}
+                    id={m === currentMonth ? 'current-month' : undefined}
                     className={cn(
                       "text-center w-[100px] min-w-[100px] whitespace-nowrap",
                       m === currentMonth && "bg-blue-50"
