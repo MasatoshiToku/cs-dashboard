@@ -101,9 +101,11 @@ function gridReducer(state: GridState, action: GridAction): GridState {
 interface ForecastGridProps {
   initialForecasts: ForecastRowExtended[];
   sheetId: number;  // forecasts シートの gid
+  knownVcNames: string[];  // issues + forecasts から取得した全VC名（ルックアップ候補）
+  existingVcProfiles: Record<string, ForecastRowExtended>;  // forecasts にある VC のプロファイル
 }
 
-export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
+export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existingVcProfiles }: ForecastGridProps) {
   const initialState: GridState = {
     rows: initialForecasts,
     changes: new Map<string, Partial<ForecastRowExtended>>(),
@@ -594,6 +596,8 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
         onOpenChange={setShowAddDialog}
         onAdd={handleAddClient}
         existingVcNames={existingVcNames}
+        knownVcNames={knownVcNames}
+        existingVcProfiles={existingVcProfiles}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ForecastCategory, ForecastFrequency } from '@/lib/types';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { ForecastCategory, ForecastFrequency, ForecastRowExtended } from '@/lib/types';
 import { FORECAST_CATEGORIES } from '@/lib/constants';
 
 interface NewClientData {
@@ -35,7 +48,9 @@ interface AddClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (data: NewClientData) => void;
-  existingVcNames: string[];  // 重複チェック用
+  existingVcNames: string[];  // 重複チェック用（既にforecastに登録済み）
+  knownVcNames: string[];  // ルックアップ候補（issues等から取得した全VC名）
+  existingVcProfiles: Record<string, ForecastRowExtended>;  // 既存VCの設定値（自動入力用）
 }
 
 const FREQUENCY_OPTIONS: { value: ForecastFrequency; label: string }[] = [
@@ -48,8 +63,12 @@ export function AddClientDialog({
   onOpenChange,
   onAdd,
   existingVcNames,
+  knownVcNames,
+  existingVcProfiles,
 }: AddClientDialogProps) {
+  const [mode, setMode] = useState<'lookup' | 'new'>('lookup');
   const [vcName, setVcName] = useState('');
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const [category, setCategory] = useState<ForecastCategory>('新規VC');
   const [frequency, setFrequency] = useState<ForecastFrequency>('one-time');
   const [intervalMonths, setIntervalMonths] = useState('');
@@ -57,8 +76,15 @@ export function AddClientDialog({
   const [assignDeadlineDay, setAssignDeadlineDay] = useState('');
   const [error, setError] = useState('');
 
+  // ルックアップ候補: まだforecastに未登録のVC名のみ表示
+  const availableVcNames = useMemo(() => {
+    return knownVcNames.filter(name => !existingVcNames.includes(name));
+  }, [knownVcNames, existingVcNames]);
+
   const resetForm = useCallback(() => {
+    setMode('lookup');
     setVcName('');
+    setPopoverOpen(false);
     setCategory('新規VC');
     setFrequency('one-time');
     setIntervalMonths('');
@@ -74,12 +100,29 @@ export function AddClientDialog({
     onOpenChange(newOpen);
   }, [onOpenChange, resetForm]);
 
+  // ルックアップでVC選択時: プロファイル自動入力
+  const handleSelectVc = useCallback((name: string) => {
+    setVcName(name);
+    setPopoverOpen(false);
+    setError('');
+
+    // 既存プロファイルがあれば自動入力
+    const profile = existingVcProfiles[name];
+    if (profile) {
+      setCategory(profile.category);
+      setFrequency(profile.frequency);
+      setIntervalMonths(profile.intervalMonths ? String(profile.intervalMonths) : '');
+      setDeadlineDay(profile.deadlineDay ? String(profile.deadlineDay) : '');
+      setAssignDeadlineDay(profile.assignDeadlineDay ? String(profile.assignDeadlineDay) : '');
+    }
+  }, [existingVcProfiles]);
+
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
     const trimmedName = vcName.trim();
     if (!trimmedName) {
-      setError('クライアント名を入力してください');
+      setError(mode === 'lookup' ? 'クライアントを選択してください' : 'クライアント名を入力してください');
       return;
     }
 
@@ -115,33 +158,102 @@ export function AddClientDialog({
     });
 
     handleOpenChange(false);
-  }, [vcName, category, frequency, intervalMonths, deadlineDay, assignDeadlineDay, existingVcNames, onAdd, handleOpenChange]);
+  }, [vcName, mode, category, frequency, intervalMonths, deadlineDay, assignDeadlineDay, existingVcNames, onAdd, handleOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>クライアント追加</DialogTitle>
           <DialogDescription>
-            新しいクライアントの予測データを追加します
+            予測データに追加するクライアントを選択します
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            {/* クライアント名 */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="vcName" className="text-right">
-                クライアント名
-              </Label>
-              <Input
-                id="vcName"
-                value={vcName}
-                onChange={(e) => { setVcName(e.target.value); setError(''); }}
-                className="col-span-3"
-                placeholder="例: UTEC"
-                autoFocus
-              />
+            {/* モード切替 */}
+            <div className="flex gap-2 mb-2">
+              <Button
+                type="button"
+                variant={mode === 'lookup' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setMode('lookup'); setVcName(''); setError(''); }}
+              >
+                既存クライアント
+              </Button>
+              <Button
+                type="button"
+                variant={mode === 'new' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setMode('new'); setVcName(''); setError(''); }}
+              >
+                新規登録
+              </Button>
             </div>
+
+            {/* クライアント名 */}
+            {mode === 'lookup' ? (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
+                  クライアント
+                </Label>
+                <div className="col-span-3">
+                  <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={popoverOpen}
+                        className="w-full justify-between font-normal"
+                      >
+                        {vcName || 'クライアントを検索...'}
+                        <span className="ml-2 h-4 w-4 shrink-0 opacity-50">▼</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="検索..." />
+                        <CommandList>
+                          <CommandEmpty>見つかりません</CommandEmpty>
+                          <CommandGroup>
+                            {availableVcNames.map((name) => (
+                              <CommandItem
+                                key={name}
+                                value={name}
+                                onSelect={() => handleSelectVc(name)}
+                              >
+                                <span className={vcName === name ? 'font-semibold' : ''}>
+                                  {name}
+                                </span>
+                                {existingVcProfiles[name] && (
+                                  <span className="ml-auto text-xs text-muted-foreground">
+                                    {existingVcProfiles[name].category}
+                                  </span>
+                                )}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="vcName" className="text-right">
+                  クライアント名
+                </Label>
+                <Input
+                  id="vcName"
+                  value={vcName}
+                  onChange={(e) => { setVcName(e.target.value); setError(''); }}
+                  className="col-span-3"
+                  placeholder="新規クライアント名を入力"
+                  autoFocus
+                />
+              </div>
+            )}
 
             {/* カテゴリ */}
             <div className="grid grid-cols-4 items-center gap-4">
