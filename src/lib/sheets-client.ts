@@ -3,10 +3,16 @@ import { GoogleAuth } from 'google-auth-library';
 import type { DashboardData, IssueRow, ForecastRow, MetaData } from './types';
 import { ISSUES_HEADERS } from './constants';
 
+/** Strip trailing whitespace and spurious literal \n from env var values. */
+function cleanEnv(value: string | undefined): string {
+  return (value || '').replace(/\\n$/g, '').trim();
+}
+
 function getAuth(): GoogleAuth {
+  const rawKey = (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '').trim();
   const credentials = {
-    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!,
-    private_key: (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    client_email: cleanEnv(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL),
+    private_key: rawKey.replace(/\\n/g, '\n'),
   };
   return new GoogleAuth({
     credentials,
@@ -20,7 +26,7 @@ function getSheetsClient(auth: GoogleAuth): sheets_v4.Sheets {
 }
 
 export async function fetchDashboardData(): Promise<DashboardData> {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
+  const spreadsheetId = (process.env.GOOGLE_SPREADSHEET_ID || '').trim();
   const auth = getAuth();
   const sheetsClient = getSheetsClient(auth);
 

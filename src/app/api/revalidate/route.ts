@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
 
-  if (secret !== process.env.REVALIDATION_SECRET) {
+  if (secret !== (process.env.REVALIDATION_SECRET || '').trim()) {
     return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
   }
 
