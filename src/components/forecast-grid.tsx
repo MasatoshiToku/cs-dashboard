@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useReducer, useCallback, useMemo, useState } from 'react';
+import React, { useReducer, useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import { ForecastToolbar } from './forecast-toolbar';
 import { AddClientDialog } from './add-client-dialog';
 import { ForecastRowExtended, ForecastCategory, ForecastFrequency } from '@/lib/types';
 import { FORECAST_CATEGORIES, FORECAST_CATEGORY_COLORS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 // --- Types ---
 
@@ -120,26 +121,52 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
-  // --- 月の計算（データ全月 + 今月から12ヶ月先） ---
-  const months = useMemo(() => {
-    const allMonths = new Set<string>();
-
-    // データに存在する月を収集
-    for (const row of [...state.rows, ...state.added]) {
-      allMonths.add(row.yearMonth);
-    }
-
-    // 今月から12ヶ月先まで追加
+  // --- 今月（ハイライト用） ---
+  const currentMonth = useMemo(() => {
     const today = new Date();
-    for (let i = 0; i < 12; i++) {
+    return `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+  }, []);
+
+  // --- スクロールコンテナ ref ---
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // --- 月の計算（過去12ヶ月 + 今月 + 未来23ヶ月 = 合計36ヶ月） ---
+  const months = useMemo(() => {
+    const today = new Date();
+    const result: string[] = [];
+
+    // 過去12ヶ月 + 今月 + 未来23ヶ月 = 合計36ヶ月
+    for (let i = -12; i <= 23; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
       const ym = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
-      allMonths.add(ym);
+      result.push(ym);
     }
 
-    // ソートして返す
-    return Array.from(allMonths).sort();
+    // データに存在するがこの範囲外の月も追加
+    const monthSet = new Set(result);
+    for (const row of [...state.rows, ...state.added]) {
+      if (!monthSet.has(row.yearMonth)) {
+        result.push(row.yearMonth);
+      }
+    }
+
+    return result.sort();
   }, [state.rows, state.added]);
+
+  // --- 初期スクロール位置を今月に設定 ---
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const monthIndex = months.indexOf(currentMonth);
+
+    if (monthIndex >= 0) {
+      // クライアント列(180px) + 月カラム(100px) × monthIndex - 少し左にオフセット
+      const scrollTo = 180 + monthIndex * 100 - 200; // 200px左余白
+      container.scrollLeft = Math.max(0, scrollTo);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 初回のみ
 
   // --- 全行（元データ + 追加 - 削除） ---
   const allRows = useMemo(() => {
@@ -472,7 +499,10 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
         </div>
       )}
 
-      <div className="border rounded-lg overflow-x-auto">
+      <div
+        ref={scrollContainerRef}
+        className="border rounded-lg overflow-x-auto"
+      >
         <div style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
         <Table>
           <TableHeader>
@@ -485,7 +515,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                 const prevYear = i > 0 ? months[i - 1].split('/')[0] : '';
                 const showYear = year !== prevYear;
                 return (
-                  <TableHead key={m} className="text-center w-[100px] min-w-[100px] whitespace-nowrap">
+                  <TableHead
+                    key={m}
+                    className={cn(
+                      "text-center w-[100px] min-w-[100px] whitespace-nowrap",
+                      m === currentMonth && "bg-blue-50"
+                    )}
+                  >
                     {showYear && <div className="text-xs text-muted-foreground">{year}</div>}
                     {month}月
                   </TableHead>
@@ -534,7 +570,14 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         const row = monthData[month];
                         const isAutoFilled = filledRowsData.virtualKeys.has(makeKey(vcName, month));
                         return (
-                          <TableCell key={month} className={`p-0 ${isAutoFilled ? 'bg-muted/20' : ''}`}>
+                          <TableCell
+                            key={month}
+                            className={cn(
+                              "p-0",
+                              isAutoFilled && "bg-muted/20",
+                              month === currentMonth && "bg-blue-50"
+                            )}
+                          >
                             <ForecastCell
                               value={row?.forecastCount ?? null}
                               type="number"
@@ -572,7 +615,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         小計
                       </TableCell>
                       {months.map(month => (
-                        <TableCell key={month} className="text-center text-sm font-medium">
+                        <TableCell
+                          key={month}
+                          className={cn(
+                            "text-center text-sm font-medium",
+                            month === currentMonth && "bg-blue-50"
+                          )}
+                        >
                           {categorySubtotals[category]?.[month] || '-'}
                         </TableCell>
                       ))}
@@ -589,7 +638,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                 合計
               </TableCell>
               {months.map(month => (
-                <TableCell key={month} className="text-center">
+                <TableCell
+                  key={month}
+                  className={cn(
+                    "text-center",
+                    month === currentMonth && "bg-blue-50"
+                  )}
+                >
                   {grandTotals[month] || '-'}
                 </TableCell>
               ))}
