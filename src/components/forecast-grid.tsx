@@ -130,13 +130,13 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
   // --- スクロールコンテナ ref ---
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- 月の計算（過去12ヶ月 + 今月 + 未来23ヶ月 = 合計36ヶ月） ---
+  // --- 月の計算（過去24ヶ月 + 今月 + 未来23ヶ月 = 合計48ヶ月） ---
   const months = useMemo(() => {
     const today = new Date();
     const result: string[] = [];
 
-    // 過去12ヶ月 + 今月 + 未来23ヶ月 = 合計36ヶ月
-    for (let i = -12; i <= 23; i++) {
+    // 過去24ヶ月 + 今月 + 未来23ヶ月 = 合計48ヶ月
+    for (let i = -24; i <= 23; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
       const ym = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
       result.push(ym);
@@ -155,16 +155,18 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
 
   // --- 初期スクロール位置を今月に設定 ---
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-    const monthIndex = months.indexOf(currentMonth);
+      const monthIndex = months.indexOf(currentMonth);
 
-    if (monthIndex >= 0) {
-      // クライアント列(180px) + 月カラム(100px) × monthIndex - 少し左にオフセット
-      const scrollTo = 180 + monthIndex * 100 - 200; // 200px左余白
-      container.scrollLeft = Math.max(0, scrollTo);
-    }
+      if (monthIndex >= 0) {
+        // クライアント列(180px) + 月カラム(100px) × monthIndex - 左に3ヶ月分見えるようオフセット
+        const scrollTo = 180 + monthIndex * 100 - 300;
+        container.scrollLeft = Math.max(0, scrollTo);
+      }
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 初回のみ
 
