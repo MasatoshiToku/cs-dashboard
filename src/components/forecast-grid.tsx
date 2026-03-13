@@ -120,6 +120,7 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
 
   // --- 今月（ハイライト用） ---
   const currentMonth = useMemo(() => {
@@ -155,20 +156,23 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
 
   // --- 初期スクロール位置を今月に設定 ---
   useEffect(() => {
-    requestAnimationFrame(() => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
+    if (hasScrolled) return;
 
-      const monthIndex = months.indexOf(currentMonth);
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-      if (monthIndex >= 0) {
-        // クライアント列(180px) + 月カラム(100px) × monthIndex - 左に3ヶ月分見えるようオフセット
+    const today = new Date();
+    const currentMonthStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const monthIndex = months.indexOf(currentMonthStr);
+
+    if (monthIndex >= 0) {
+      requestAnimationFrame(() => {
         const scrollTo = 180 + monthIndex * 100 - 300;
         container.scrollLeft = Math.max(0, scrollTo);
-      }
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 初回のみ
+        setHasScrolled(true);
+      });
+    }
+  }, [months, hasScrolled]);
 
   // --- 全行（元データ + 追加 - 削除） ---
   const allRows = useMemo(() => {
