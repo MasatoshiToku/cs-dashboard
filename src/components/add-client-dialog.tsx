@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/command';
 import { ForecastCategory, ForecastFrequency, ForecastRowExtended } from '@/lib/types';
 import { FORECAST_CATEGORIES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 interface NewClientData {
   vcName: string;
@@ -114,7 +115,6 @@ export function AddClientDialog({
       setCategory(profile.category);
       setFrequency(profile.frequency);
       setIntervalMonths(profile.intervalMonths ? String(profile.intervalMonths) : '');
-
     }
   }, [existingVcProfiles]);
 
@@ -192,30 +192,38 @@ export function AddClientDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            {/* モード切替 */}
-            <div className="flex gap-2 mb-2">
-              <Button
+            {/* モード切替 — セグメントコントロール風 */}
+            <div className="flex rounded-lg bg-muted p-1 mb-2">
+              <button
                 type="button"
-                variant={mode === 'lookup' ? 'default' : 'outline'}
-                size="sm"
+                className={cn(
+                  "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                  mode === 'lookup'
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
                 onClick={() => { setMode('lookup'); setVcName(''); }}
               >
                 既存クライアント
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant={mode === 'new' ? 'default' : 'outline'}
-                size="sm"
+                className={cn(
+                  "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                  mode === 'new'
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
                 onClick={() => { setMode('new'); setVcName(''); }}
               >
                 新規登録
-              </Button>
+              </button>
             </div>
 
             {/* クライアント名 */}
             {mode === 'lookup' ? (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">
+                <Label className="text-right text-sm text-muted-foreground">
                   クライアント
                 </Label>
                 <div className="col-span-3">
@@ -262,7 +270,7 @@ export function AddClientDialog({
               </div>
             ) : (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="vcName" className="text-right">
+                <Label htmlFor="vcName" className="text-right text-sm text-muted-foreground">
                   クライアント名
                 </Label>
                 <Input
@@ -278,7 +286,7 @@ export function AddClientDialog({
 
             {/* カテゴリ */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">
+              <Label htmlFor="category" className="text-right text-sm text-muted-foreground">
                 カテゴリ
               </Label>
               <div className="col-span-3">
@@ -299,7 +307,7 @@ export function AddClientDialog({
 
             {/* 頻度 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="frequency" className="text-right">
+              <Label htmlFor="frequency" className="text-right text-sm text-muted-foreground">
                 頻度
               </Label>
               <div className="col-span-3">
@@ -321,7 +329,7 @@ export function AddClientDialog({
             {/* 間隔（月数） - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">
+                <Label className="text-right text-sm text-muted-foreground">
                   間隔（月数）
                 </Label>
                 <Input
@@ -339,7 +347,7 @@ export function AddClientDialog({
             {/* 初回年月 - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">初回年月</Label>
+                <Label className="text-right text-sm text-muted-foreground">初回年月</Label>
                 <Input
                   value={startMonth}
                   onChange={(e) => setStartMonth(e.target.value)}
@@ -351,7 +359,7 @@ export function AddClientDialog({
 
             {/* 予定件数 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="forecastCount" className="text-right">
+              <Label htmlFor="forecastCount" className="text-right text-sm text-muted-foreground">
                 予定件数
               </Label>
               <Input
@@ -364,13 +372,14 @@ export function AddClientDialog({
                 min={0}
               />
             </div>
-
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} className="text-muted-foreground">
               キャンセル
             </Button>
-            <Button type="submit">追加</Button>
+            <Button type="submit" className="shadow-sm">
+              追加
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

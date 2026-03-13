@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 type CellType = 'text' | 'number' | 'select';
 
@@ -94,8 +95,8 @@ function ForecastCellInner({
 
   if (readOnly) {
     return (
-      <div className={`px-2 py-1.5 text-sm ${className}`}>
-        <span className={isPlaceholder ? 'text-muted-foreground' : ''}>
+      <div className={cn("px-2 py-1.5 text-sm tabular-nums", className)}>
+        <span className={isPlaceholder ? 'text-muted-foreground/40' : ''}>
           {displayValue}
         </span>
       </div>
@@ -104,9 +105,9 @@ function ForecastCellInner({
 
   if (isEditing && type === 'select' && options) {
     return (
-      <div className={`px-1 py-0.5 ${className}`}>
+      <div className={cn("px-1 py-0.5", className)}>
         <Select value={String(value ?? '')} onValueChange={handleSelectChange}>
-          <SelectTrigger className="h-7 text-sm">
+          <SelectTrigger className="h-7 text-sm ring-2 ring-blue-400 border-blue-300">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
@@ -123,7 +124,7 @@ function ForecastCellInner({
 
   if (isEditing) {
     return (
-      <div className={`px-1 py-0.5 ${className}`}>
+      <div className={cn("px-0.5 py-0.5", className)}>
         <Input
           ref={inputRef}
           type={type === 'number' ? 'number' : 'text'}
@@ -131,7 +132,7 @@ function ForecastCellInner({
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={commitEdit}
           onKeyDown={handleKeyDown}
-          className="h-7 text-sm"
+          className="h-7 text-sm text-center tabular-nums ring-2 ring-blue-400 border-blue-300"
           min={type === 'number' ? 0 : undefined}
         />
       </div>
@@ -140,7 +141,11 @@ function ForecastCellInner({
 
   return (
     <div
-      className={`px-2 py-1.5 text-sm cursor-pointer hover:bg-muted/50 rounded-sm transition-colors ${className}`}
+      className={cn(
+        "px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-all duration-150 tabular-nums",
+        "hover:bg-accent/40 hover:shadow-inner",
+        className
+      )}
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -150,7 +155,11 @@ function ForecastCellInner({
         }
       }}
     >
-      <span className={isPlaceholder ? 'text-muted-foreground italic' : ''}>
+      <span className={cn(
+        isPlaceholder && "text-muted-foreground/30",
+        !isPlaceholder && value === 0 && "text-muted-foreground/50",
+        !isPlaceholder && typeof value === 'number' && value > 0 && "font-medium"
+      )}>
         {displayValue}
       </span>
     </div>

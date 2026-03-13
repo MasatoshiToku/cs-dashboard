@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { ForecastCell } from './forecast-cell';
 import { ForecastToolbar } from './forecast-toolbar';
 import { AddClientDialog } from './add-client-dialog';
@@ -488,166 +487,165 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
       />
 
       {saveError && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded-md text-sm">
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           {saveError}
         </div>
       )}
 
-      <div
-        className="border rounded-lg overflow-x-auto"
-      >
-        <Table style={{ minWidth: `${180 + months.length * 100 + 60}px` }}>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="sticky left-0 bg-background z-20 w-[180px] min-w-[180px]">
-                クライアント
-              </TableHead>
-              {months.map((m, i) => {
-                const [year, month] = m.split('/');
-                const prevYear = i > 0 ? months[i - 1].split('/')[0] : '';
-                const showYear = year !== prevYear;
-                return (
-                  <TableHead
-                    key={m}
-                    id={m === currentMonth ? 'current-month' : undefined}
-                    className={cn(
-                      "text-center w-[100px] min-w-[100px] whitespace-nowrap",
-                      m === currentMonth && "bg-blue-50"
-                    )}
-                  >
-                    {showYear && <div className="text-xs text-muted-foreground">{year}</div>}
-                    {month}月
-                  </TableHead>
-                );
-              })}
-              <TableHead className="w-[60px]" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visibleCategories.map(category => {
-              const categoryRows = groupedByCategory[category] ?? [];
-              if (categoryRows.length === 0 && selectedCategory === 'all') return null;
-              const isCollapsed = collapsedCategories.has(category);
-
-              return (
-                <React.Fragment key={category}>
-                  {/* カテゴリヘッダー */}
-                  <TableRow
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    <TableCell
-                      className="sticky left-0 z-10 bg-background font-semibold"
+      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+        <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <Table style={{ minWidth: `${200 + months.length * 100 + 60}px` }}>
+            <TableHeader>
+              <TableRow className="bg-muted/40 border-b-2">
+                <TableHead className="sticky left-0 z-20 bg-muted/40 w-[200px] min-w-[200px] font-semibold text-foreground">
+                  クライアント
+                </TableHead>
+                {months.map((m, i) => {
+                  const [year, month] = m.split('/');
+                  const prevYear = i > 0 ? months[i - 1].split('/')[0] : '';
+                  const showYear = year !== prevYear;
+                  return (
+                    <TableHead
+                      key={m}
+                      id={m === currentMonth ? 'current-month' : undefined}
+                      className={cn(
+                        "text-center w-[100px] min-w-[100px] whitespace-nowrap font-medium",
+                        m === currentMonth && "bg-blue-100/70 text-blue-900 font-semibold"
+                      )}
                     >
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: FORECAST_CATEGORY_COLORS[category] }}
-                        />
-                        <span>{isCollapsed ? '▶' : '▼'} {category}</span>
-                        <span className="text-muted-foreground font-normal text-xs">
-                          ({categoryRows.length}件)
-                        </span>
-                      </span>
-                    </TableCell>
-                    {months.map(month => (
-                      <TableCell key={month} className="bg-background" />
-                    ))}
-                    <TableCell className="bg-background" />
-                  </TableRow>
+                      {showYear && <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70">{year}</div>}
+                      <div>{month}月</div>
+                    </TableHead>
+                  );
+                })}
+                <TableHead className="w-[50px] bg-muted/40" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visibleCategories.map(category => {
+                const categoryRows = groupedByCategory[category] ?? [];
+                if (categoryRows.length === 0 && selectedCategory === 'all') return null;
+                const isCollapsed = collapsedCategories.has(category);
 
-                  {/* クライアント行 */}
-                  {!isCollapsed && categoryRows.map(({ vcName, months: monthData }) => (
-                    <TableRow key={vcName}>
-                      <TableCell className="sticky left-0 bg-background z-10 font-medium">
-                        {vcName}
+                return (
+                  <React.Fragment key={category}>
+                    {/* カテゴリヘッダー */}
+                    <TableRow className="group hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => toggleCategory(category)}>
+                      <TableCell className="sticky left-0 z-10 bg-white font-semibold py-2.5 border-l-4" style={{ borderLeftColor: FORECAST_CATEGORY_COLORS[category] }}>
+                        <span className="flex items-center gap-2.5">
+                          <span className="text-xs text-muted-foreground transition-transform duration-200" style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                            ▼
+                          </span>
+                          <span className="font-semibold">{category}</span>
+                          <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                            {categoryRows.length}
+                          </span>
+                        </span>
                       </TableCell>
-                      {months.map(month => {
-                        const row = monthData[month];
-                        const isAutoFilled = filledRowsData.virtualKeys.has(makeKey(vcName, month));
-                        return (
+                      {months.map(month => (
+                        <TableCell key={month} className={cn("bg-white", month === currentMonth && "bg-blue-50/50")} />
+                      ))}
+                      <TableCell className="bg-white" />
+                    </TableRow>
+
+                    {/* クライアント行 */}
+                    {!isCollapsed && categoryRows.map(({ vcName, months: monthData }) => (
+                      <TableRow key={vcName} className="group hover:bg-muted/20 transition-colors">
+                        <TableCell className="sticky left-0 z-10 bg-white group-hover:bg-muted/20 transition-colors font-medium text-sm">
+                          <span className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: FORECAST_CATEGORY_COLORS[category] }} />
+                            {vcName}
+                          </span>
+                        </TableCell>
+                        {months.map(month => {
+                          const row = monthData[month];
+                          const isVirtual = filledRowsData.virtualKeys.has(makeKey(vcName, month));
+                          return (
+                            <TableCell
+                              key={month}
+                              className={cn(
+                                "p-0 transition-colors",
+                                month === currentMonth && "bg-blue-50/50",
+                                isVirtual && "bg-muted/10"
+                              )}
+                            >
+                              <ForecastCell
+                                value={row?.forecastCount ?? null}
+                                type="number"
+                                onChange={(val) => handleCellChange(vcName, month, val)}
+                                placeholder="-"
+                                className={cn(
+                                  "text-center",
+                                  isVirtual && "text-muted-foreground/60 italic"
+                                )}
+                              />
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell className="text-center">
+                          <button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 rounded-md hover:bg-destructive/10 hover:text-destructive inline-flex items-center justify-center text-muted-foreground"
+                            onClick={() => {
+                              // そのVCの表示月分を全削除
+                              for (const month of months) {
+                                if (monthData[month]) {
+                                  handleDeleteRow(vcName, month);
+                                }
+                              }
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                    {/* 小計行 */}
+                    {!isCollapsed && categoryRows.length > 0 && (
+                      <TableRow className="border-t border-dashed">
+                        <TableCell className="sticky left-0 z-10 bg-muted/20 text-xs font-semibold text-muted-foreground uppercase tracking-wider py-1.5">
+                          小計
+                        </TableCell>
+                        {months.map(month => (
                           <TableCell
                             key={month}
                             className={cn(
-                              "p-0",
-                              isAutoFilled && "bg-muted/20",
-                              month === currentMonth && "bg-blue-50"
+                              "text-center text-xs font-semibold text-muted-foreground bg-muted/20 py-1.5",
+                              month === currentMonth && "bg-blue-100/30 text-blue-800"
                             )}
                           >
-                            <ForecastCell
-                              value={row?.forecastCount ?? null}
-                              type="number"
-                              onChange={(val) => handleCellChange(vcName, month, val)}
-                              placeholder="-"
-                              className={`text-center ${isAutoFilled ? 'italic text-muted-foreground' : ''}`}
-                            />
+                            {categorySubtotals[category]?.[month] || <span className="text-muted-foreground/30">-</span>}
                           </TableCell>
-                        );
-                      })}
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                          onClick={() => {
-                            // そのVCの表示月分を全削除
-                            for (const month of months) {
-                              if (monthData[month]) {
-                                handleDeleteRow(vcName, month);
-                              }
-                            }
-                          }}
-                        >
-                          ×
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        ))}
+                        <TableCell className="bg-muted/20" />
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })}
 
-                  {/* 小計行 */}
-                  {!isCollapsed && categoryRows.length > 0 && (
-                    <TableRow className="bg-muted/30">
-                      <TableCell className="sticky left-0 bg-muted/30 z-10 text-sm font-medium text-muted-foreground">
-                        小計
-                      </TableCell>
-                      {months.map(month => (
-                        <TableCell
-                          key={month}
-                          className={cn(
-                            "text-center text-sm font-medium",
-                            month === currentMonth && "bg-blue-50"
-                          )}
-                        >
-                          {categorySubtotals[category]?.[month] || '-'}
-                        </TableCell>
-                      ))}
-                      <TableCell />
-                    </TableRow>
-                  )}
-                </React.Fragment>
-              );
-            })}
-
-            {/* 合計行 */}
-            <TableRow className="bg-muted/50 font-bold">
-              <TableCell className="sticky left-0 bg-muted/50 z-10">
-                合計
-              </TableCell>
-              {months.map(month => (
-                <TableCell
-                  key={month}
-                  className={cn(
-                    "text-center",
-                    month === currentMonth && "bg-blue-50"
-                  )}
-                >
-                  {grandTotals[month] || '-'}
+              {/* 合計行 */}
+              <TableRow className="border-t-2 bg-muted/30">
+                <TableCell className="sticky left-0 z-10 bg-muted/30 font-bold text-sm">
+                  合計
                 </TableCell>
-              ))}
-              <TableCell />
-            </TableRow>
-          </TableBody>
-        </Table>
+                {months.map(month => (
+                  <TableCell
+                    key={month}
+                    className={cn(
+                      "text-center font-bold text-sm",
+                      month === currentMonth && "bg-blue-100/50 text-blue-900"
+                    )}
+                  >
+                    {grandTotals[month] || <span className="text-muted-foreground/30">-</span>}
+                  </TableCell>
+                ))}
+                <TableCell className="bg-muted/30" />
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <AddClientDialog

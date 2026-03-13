@@ -57,3 +57,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Smooth scrolling */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar for forecast grid */
+.forecast-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.forecast-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.forecast-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 3px;
+}
+.forecast-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.35);
+}
+
+/* Animation utilities */
+@keyframes slide-in-from-top {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+  animation: slide-in-from-top 0.3s ease-out;
+}

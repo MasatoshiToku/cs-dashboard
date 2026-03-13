@@ -13,9 +13,9 @@ export default async function DashboardLayout({
   const data = await fetchDashboardData();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50/50">
       <DashboardHeader meta={data.meta} />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 max-w-[1600px]">
         <DashboardNav />
         <main className="mt-6">{children}</main>
       </div>
