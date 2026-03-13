@@ -144,10 +144,8 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
     return base.filter(r => !state.deletedKeys.has(makeKey(r.vcName, r.yearMonth)));
   }, [state.rows, state.added, state.deletedKeys]);
 
-  // --- 繰り返しクライアントの月補完 ---
-  const autoFilledKeys = useMemo(() => new Set<string>(), []);
-
-  const filledRows = useMemo(() => {
+  // --- 繰り返しクライアントのバーチャル行 ---
+  const filledRowsData = useMemo(() => {
     const filtered = allRows;
 
     // VC名ごとにグループ化して、frequencyを確認
@@ -159,55 +157,49 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
     }
 
     const result = [...filtered];
-    autoFilledKeys.clear();
+    const virtualKeys = new Set<string>();
 
     for (const [vcName, rows] of Array.from(vcMap.entries())) {
       const template = rows[0]; // カテゴリ等の情報を引き継ぐ
-      if (!template) continue;
+      if (!template || template.frequency !== 'regular' || !template.intervalMonths) continue;
 
       const existingMonths = new Set(rows.map(r => r.yearMonth));
+      const interval = template.intervalMonths;
 
-      if (template.frequency === 'monthly') {
-        // 表示中の全月に行を補完
-        for (const month of months) {
+      // 最も古い月を起点に、interval間隔で表示月を計算
+      const sortedMonths = Array.from(existingMonths).sort();
+      const startYM = sortedMonths[0] || months[0];
+      const [startY, startM] = startYM.split('/').map(Number);
+
+      // 表示月範囲内で該当する月を計算
+      for (const month of months) {
+        if (existingMonths.has(month)) continue;
+        if (state.deletedKeys.has(makeKey(vcName, month))) continue;
+
+        const [y, m] = month.split('/').map(Number);
+        const totalMonthsDiff = (y - startY) * 12 + (m - startM);
+
+        if (totalMonthsDiff >= 0 && totalMonthsDiff % interval === 0) {
           const key = makeKey(vcName, month);
-          if (!existingMonths.has(month) && !state.deletedKeys.has(key)) {
-            result.push({
-              ...template,
-              vcName,
-              yearMonth: month,
-              forecastCount: 0,
-              notes: '',
-            });
-            autoFilledKeys.add(key);
-          }
-        }
-      } else if (template.frequency === 'quarterly') {
-        // 四半期月（1,4,7,10月）のみ補完
-        for (const month of months) {
-          const monthNum = parseInt(month.split('/')[1], 10);
-          const key = makeKey(vcName, month);
-          if ([1, 4, 7, 10].includes(monthNum) && !existingMonths.has(month) && !state.deletedKeys.has(key)) {
-            result.push({
-              ...template,
-              vcName,
-              yearMonth: month,
-              forecastCount: 0,
-              notes: '',
-            });
-            autoFilledKeys.add(key);
-          }
+          virtualKeys.add(key);
+          result.push({
+            ...template,
+            vcName,
+            yearMonth: month,
+            forecastCount: 0,
+            notes: '',
+          });
         }
       }
       // 'one-time' は補完なし
     }
 
-    return result;
-  }, [allRows, state.deletedKeys, months, autoFilledKeys]);
+    return { rows: result, virtualKeys };
+  }, [allRows, state.deletedKeys, months]);
 
   // 変更適用済みの行
   const effectiveRows = useMemo(() => {
-    return filledRows.map(row => {
+    return filledRowsData.rows.map(row => {
       const key = makeKey(row.vcName, row.yearMonth);
       const changes = state.changes.get(key);
       if (changes) {
@@ -215,7 +207,7 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
       }
       return row;
     });
-  }, [filledRows, state.changes]);
+  }, [filledRowsData.rows, state.changes]);
 
   // --- カテゴリ別グループ ---
   const groupedByCategory = useMemo(() => {
@@ -299,10 +291,10 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
 
   const handleCellChange = useCallback((vcName: string, yearMonth: string, value: string | number | null) => {
     const key = makeKey(vcName, yearMonth);
-    // 自動補完行を編集した場合、added に追加して保存対象にする
-    if (autoFilledKeys.has(key)) {
-      // filledRows からテンプレート行を取得
-      const templateRow = filledRows.find(r => r.vcName === vcName && r.yearMonth === yearMonth);
+    // バーチャル行を編集した場合、added に追加して保存対象にする
+    if (filledRowsData.virtualKeys.has(key)) {
+      // filledRowsData.rows からテンプレート行を取得
+      const templateRow = filledRowsData.rows.find(r => r.vcName === vcName && r.yearMonth === yearMonth);
       if (templateRow) {
         dispatch({
           type: 'ADD_CLIENT',
@@ -311,7 +303,6 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
             forecastCount: typeof value === 'number' ? value : 0,
           }],
         });
-        autoFilledKeys.delete(key); // added に移動したので autoFilled ではなくなる
         return;
       }
     }
@@ -322,24 +313,26 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
       field: 'forecastCount',
       value: typeof value === 'number' ? value : 0,
     });
-  }, [autoFilledKeys, filledRows]);
+  }, [filledRowsData]);
 
   const handleDeleteRow = useCallback((vcName: string, yearMonth: string) => {
     dispatch({ type: 'DELETE_ROW', vcName, yearMonth });
   }, []);
 
-  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; deadlineDay: number | null; assignDeadlineDay: number | null }) => {
-    // 表示中の全月分の行を追加
-    const newRows: ForecastRowExtended[] = months.map(month => ({
+  const handleAddClient = useCallback((data: { vcName: string; category: ForecastCategory; frequency: ForecastFrequency; intervalMonths: number | null; deadlineDay: number | null; assignDeadlineDay: number | null }) => {
+    // regular: 最初の月のみ実行を追加（バーチャル行が残りを表示）
+    // one-time: 最初の月のみ
+    const newRows: ForecastRowExtended[] = [{
       vcName: data.vcName,
-      yearMonth: month,
+      yearMonth: months[0],
       forecastCount: 0,
       notes: '',
       category: data.category,
       frequency: data.frequency,
+      intervalMonths: data.intervalMonths,
       deadlineDay: data.deadlineDay,
       assignDeadlineDay: data.assignDeadlineDay,
-    }));
+    }];
     dispatch({ type: 'ADD_CLIENT', rows: newRows });
   }, [months]);
 
@@ -359,7 +352,7 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
           const row = { ...state.rows[rowIdx], ...changes };
           const sheetRow = rowIdx + 2; // A2始まりなので+2
           updates.push({
-            range: `forecasts!A${sheetRow}:H${sheetRow}`,
+            range: `forecasts!A${sheetRow}:I${sheetRow}`,
             values: [[
               row.vcName,
               row.yearMonth,
@@ -369,6 +362,7 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
               row.frequency,
               row.deadlineDay ?? '',
               row.assignDeadlineDay ?? '',
+              row.intervalMonths ?? '',
             ]],
           });
         }
@@ -395,16 +389,15 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
           body: JSON.stringify({
             action: 'append',
             data: {
-              values: [
-                row.vcName,
-                row.yearMonth,
-                row.forecastCount,
-                row.notes ?? '',
-                row.category,
-                row.frequency,
-                row.deadlineDay ?? '',
-                row.assignDeadlineDay ?? '',
-              ],
+              vcName: row.vcName,
+              yearMonth: row.yearMonth,
+              forecastCount: row.forecastCount,
+              notes: row.notes ?? '',
+              category: row.category,
+              frequency: row.frequency,
+              deadlineDay: row.deadlineDay ?? null,
+              assignDeadlineDay: row.assignDeadlineDay ?? null,
+              intervalMonths: row.intervalMonths ?? null,
             },
           }),
         });
@@ -529,7 +522,7 @@ export function ForecastGrid({ initialForecasts, sheetId }: ForecastGridProps) {
                       </TableCell>
                       {months.map(month => {
                         const row = monthData[month];
-                        const isAutoFilled = autoFilledKeys.has(makeKey(vcName, month));
+                        const isAutoFilled = filledRowsData.virtualKeys.has(makeKey(vcName, month));
                         return (
                           <TableCell key={month} className={`p-0 ${isAutoFilled ? 'bg-muted/20' : ''}`}>
                             <ForecastCell

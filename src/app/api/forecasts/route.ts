@@ -5,7 +5,7 @@ import { FORECAST_CATEGORIES } from '@/lib/constants';
 import type { ForecastCategory, ForecastFrequency } from '@/lib/types';
 
 const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID!;
-const VALID_FREQUENCIES: ForecastFrequency[] = ['one-time', 'monthly', 'quarterly'];
+const VALID_FREQUENCIES: ForecastFrequency[] = ['regular', 'one-time'];
 const YEAR_MONTH_REGEX = /^\d{4}\/\d{2}$/;
 
 function validateForecastData(data: Record<string, unknown>): string | null {
@@ -46,6 +46,18 @@ function validateForecastData(data: Record<string, unknown>): string | null {
     if (!Number.isInteger(day) || day < 1 || day > 31) {
       return 'assignDeadlineDay must be 1-31 or null';
     }
+  }
+
+  if (data.intervalMonths !== undefined && data.intervalMonths !== null) {
+    const interval = Number(data.intervalMonths);
+    if (!Number.isInteger(interval) || interval < 1) {
+      return 'intervalMonths must be a positive integer or null';
+    }
+  }
+
+  // frequency が 'regular' の場合、intervalMonths は必須
+  if (data.frequency === 'regular' && (data.intervalMonths === undefined || data.intervalMonths === null)) {
+    return 'intervalMonths is required when frequency is regular';
   }
 
   return null;
@@ -107,6 +119,7 @@ export async function POST(request: NextRequest) {
         data.frequency || 'one-time',
         data.deadlineDay ?? null,
         data.assignDeadlineDay ?? null,
+        data.intervalMonths ?? null,
       ];
 
       await appendForecastRow(SPREADSHEET_ID, values);

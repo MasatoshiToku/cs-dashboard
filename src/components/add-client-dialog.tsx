@@ -26,6 +26,7 @@ interface NewClientData {
   vcName: string;
   category: ForecastCategory;
   frequency: ForecastFrequency;
+  intervalMonths: number | null;
   deadlineDay: number | null;
   assignDeadlineDay: number | null;
 }
@@ -39,8 +40,7 @@ interface AddClientDialogProps {
 
 const FREQUENCY_OPTIONS: { value: ForecastFrequency; label: string }[] = [
   { value: 'one-time', label: 'スポット（単発）' },
-  { value: 'monthly', label: '月次（毎月自動生成）' },
-  { value: 'quarterly', label: '四半期（3ヶ月毎に自動生成）' },
+  { value: 'regular', label: '定期' },
 ];
 
 export function AddClientDialog({
@@ -52,6 +52,7 @@ export function AddClientDialog({
   const [vcName, setVcName] = useState('');
   const [category, setCategory] = useState<ForecastCategory>('新規VC');
   const [frequency, setFrequency] = useState<ForecastFrequency>('one-time');
+  const [intervalMonths, setIntervalMonths] = useState('');
   const [deadlineDay, setDeadlineDay] = useState('');
   const [assignDeadlineDay, setAssignDeadlineDay] = useState('');
   const [error, setError] = useState('');
@@ -60,6 +61,7 @@ export function AddClientDialog({
     setVcName('');
     setCategory('新規VC');
     setFrequency('one-time');
+    setIntervalMonths('');
     setDeadlineDay('');
     setAssignDeadlineDay('');
     setError('');
@@ -86,9 +88,14 @@ export function AddClientDialog({
       return;
     }
 
+    const intMonths = intervalMonths ? Number(intervalMonths) : null;
     const dlDay = deadlineDay ? Number(deadlineDay) : null;
     const asDlDay = assignDeadlineDay ? Number(assignDeadlineDay) : null;
 
+    if (frequency === 'regular' && (intMonths === null || intMonths < 1)) {
+      setError('定期の場合、間隔（月数）は1以上で入力してください');
+      return;
+    }
     if (dlDay !== null && (dlDay < 1 || dlDay > 31)) {
       setError('期日は1-31の範囲で入力してください');
       return;
@@ -102,12 +109,13 @@ export function AddClientDialog({
       vcName: trimmedName,
       category,
       frequency,
+      intervalMonths: frequency === 'regular' ? intMonths : null,
       deadlineDay: dlDay,
       assignDeadlineDay: asDlDay,
     });
 
     handleOpenChange(false);
-  }, [vcName, category, frequency, deadlineDay, assignDeadlineDay, existingVcNames, onAdd, handleOpenChange]);
+  }, [vcName, category, frequency, intervalMonths, deadlineDay, assignDeadlineDay, existingVcNames, onAdd, handleOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -176,6 +184,24 @@ export function AddClientDialog({
                 </Select>
               </div>
             </div>
+
+            {/* 間隔（月数） - 定期の場合のみ表示 */}
+            {frequency === 'regular' && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
+                  間隔（月数）
+                </Label>
+                <Input
+                  type="number"
+                  value={intervalMonths}
+                  onChange={(e) => setIntervalMonths(e.target.value)}
+                  className="col-span-3"
+                  placeholder="例: 1（毎月）, 3（四半期）, 12（年次）"
+                  min={1}
+                  max={120}
+                />
+              </div>
+            )}
 
             {/* 期日 */}
             <div className="grid grid-cols-4 items-center gap-4">

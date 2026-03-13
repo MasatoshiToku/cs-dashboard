@@ -17,6 +17,7 @@ function makeForecast(overrides: Partial<ForecastRowExtended> = {}): ForecastRow
     notes: '',
     category: '新規VC',
     frequency: 'one-time',
+    intervalMonths: null,
     deadlineDay: null,
     assignDeadlineDay: null,
     ...overrides,

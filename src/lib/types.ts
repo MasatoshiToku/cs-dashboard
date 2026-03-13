@@ -39,11 +39,12 @@ export type ForecastCategory =
   | 'トランザクション'
   | 'LP投資管理';
 
-export type ForecastFrequency = 'one-time' | 'monthly' | 'quarterly';
+export type ForecastFrequency = 'regular' | 'one-time';
 
 export interface ForecastRowExtended extends ForecastRow {
   category: ForecastCategory;
   frequency: ForecastFrequency;
+  intervalMonths: number | null;  // 定期の場合の月間隔（1,2,3,6,12等）
   deadlineDay: number | null;
   assignDeadlineDay: number | null;
 }

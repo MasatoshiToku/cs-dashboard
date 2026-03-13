@@ -1,5 +1,5 @@
 /**
- * 既存 forecasts データに E-H 列のデフォルト値を追加するマイグレーションスクリプト
+ * 既存 forecasts データに E-I 列のデフォルト値を追加するマイグレーションスクリプト
  *
  * 使い方:
  *   set -a && source /Users/tokumasatoshi/Documents/Cursor/ClaudeCode.env && set +a
@@ -49,7 +49,7 @@ async function main() {
   // 1. 現在のデータを取得（A-H列）
   const response = await sheetsClient.spreadsheets.values.get({
     spreadsheetId,
-    range: 'forecasts!A2:H',
+    range: 'forecasts!A2:I',
   });
 
   const rows = response.data.values ?? [];
@@ -73,8 +73,8 @@ async function main() {
     if (needsUpdate) {
       const before = [...row];
 
-      // 配列を8要素に拡張（不足分は空文字で埋める）
-      while (row.length < 8) {
+      // 配列を9要素に拡張（不足分は空文字で埋める）
+      while (row.length < 9) {
         row.push('');
       }
 
@@ -83,6 +83,7 @@ async function main() {
       if (!row[5]) row[5] = 'one-time';      // frequency
       // row[6]: deadlineDay - 空のまま（null扱い）
       // row[7]: assignDeadlineDay - 空のまま（null扱い）
+      // row[8]: intervalMonths - 空のまま（null扱い）
 
       updatedRows.push({
         row: i + 2, // 1-indexed + ヘッダー行
@@ -115,7 +116,7 @@ async function main() {
 
   // 3. バッチ更新
   const data = updatedRows.map(({ row, after }) => ({
-    range: `forecasts!A${row}:H${row}`,
+    range: `forecasts!A${row}:I${row}`,
     values: [after],
   }));
 
