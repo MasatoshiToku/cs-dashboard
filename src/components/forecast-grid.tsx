@@ -544,7 +544,19 @@ export function ForecastGrid({ initialForecasts, sheetId, knownVcNames, existing
                         </span>
                       </TableCell>
                       {months.map(month => (
-                        <TableCell key={month} className={cn("bg-white", month === currentMonth && "bg-blue-50/50")} />
+                        <TableCell
+                          key={month}
+                          className={cn(
+                            "bg-white text-center",
+                            month === currentMonth && "bg-blue-50/50",
+                            isCollapsed && "text-sm font-medium tabular-nums"
+                          )}
+                        >
+                          {isCollapsed && categorySubtotals[category]?.[month]
+                            ? categorySubtotals[category][month]
+                            : null
+                          }
+                        </TableCell>
                       ))}
                       <TableCell className="bg-white" />
                     </TableRow>
