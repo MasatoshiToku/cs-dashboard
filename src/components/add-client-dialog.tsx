@@ -38,9 +38,9 @@ interface AddClientDialogProps {
 }
 
 const FREQUENCY_OPTIONS: { value: ForecastFrequency; label: string }[] = [
-  { value: 'one-time', label: 'スポット' },
-  { value: 'monthly', label: '月次' },
-  { value: 'quarterly', label: '四半期' },
+  { value: 'one-time', label: 'スポット（単発）' },
+  { value: 'monthly', label: '月次（毎月自動生成）' },
+  { value: 'quarterly', label: '四半期（3ヶ月毎に自動生成）' },
 ];
 
 export function AddClientDialog({
