@@ -11,9 +11,9 @@ export default async function ForecastPage() {
   // forecasts は ForecastRow[] だが実際には ForecastRowExtended[] として返される
   const forecasts = data.forecasts as ForecastRowExtended[];
 
-  // TODO: sheetId は forecasts シートの gid。スプレッドシートの構造から取得
-  // 暫定的に 0 を設定（実際の値はスプレッドシートで確認が必要）
-  const sheetId = 0;
+  // forecasts シートの sheetId (gid)
+  
+  const sheetId = 962931220;
 
   return (
     <div className="space-y-6">
