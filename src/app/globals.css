@@ -88,3 +88,8 @@
 .animate-in {
   animation: slide-in-from-top 0.3s ease-out;
 }
+
+/* Sticky column shadow */
+.sticky-col-shadow {
+  box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.08);
+}
