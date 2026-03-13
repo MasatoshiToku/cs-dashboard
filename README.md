@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CS業務管理ダッシュボード
 
-## Getting Started
+Backlog課題データをGoogle Spreadsheet経由で可視化するBIダッシュボード。
 
-First, run the development server:
+## セットアップ
+
+### 前提条件
+- Node.js 18+
+- GCP Service Account（Sheets API読み取り権限）
+- データソースのGoogle Spreadsheet
+
+### インストール
 
 ```bash
+npm install
+cp .env.example .env.local
+# .env.local に環境変数を設定
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Vercelデプロイ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+vercel --prod
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+環境変数はVercelダッシュボードで設定。
 
-## Learn More
+## ビュー
 
-To learn more about Next.js, take a look at the following resources:
+| パス | 説明 |
+|------|------|
+| `/dashboard/deadline` | 期日アラート（デフォルト） |
+| `/dashboard/vc-progress` | VC別進捗 |
+| `/dashboard/status` | ステータス内訳 |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## On-demand Revalidation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+GAS同期完了後にキャッシュ更新:
+```bash
+curl -X POST "https://your-domain.vercel.app/api/revalidate?secret=YOUR_SECRET"
+```
 
-## Deploy on Vercel
+## テスト
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test
+```
