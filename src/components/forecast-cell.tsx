@@ -95,8 +95,8 @@ function ForecastCellInner({
 
   if (readOnly) {
     return (
-      <div className={cn("px-2 py-1.5 text-sm tabular-nums", className)}>
-        <span className={isPlaceholder ? 'text-muted-foreground/40' : ''}>
+      <div className={cn("px-2 py-1.5 text-sm tabular-nums select-none", className)}>
+        <span className={cn(isPlaceholder ? "text-gray-300" : "text-gray-700")}>
           {displayValue}
         </span>
       </div>
@@ -132,7 +132,7 @@ function ForecastCellInner({
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={commitEdit}
           onKeyDown={handleKeyDown}
-          className="h-7 text-sm text-center tabular-nums ring-2 ring-blue-400 border-blue-300"
+          className="h-7 text-sm text-center tabular-nums border-blue-300 ring-2 ring-blue-200 bg-blue-50/30 rounded-md shadow-inner"
           min={type === 'number' ? 0 : undefined}
         />
       </div>
@@ -142,8 +142,8 @@ function ForecastCellInner({
   return (
     <div
       className={cn(
-        "px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-all duration-150 tabular-nums",
-        "hover:bg-accent/40 hover:shadow-inner",
+        "px-2 py-1.5 text-sm cursor-pointer rounded-md transition-all duration-150 tabular-nums",
+        "hover:bg-blue-50/50 hover:ring-1 hover:ring-blue-200/50",
         className
       )}
       onClick={handleClick}
@@ -156,9 +156,11 @@ function ForecastCellInner({
       }}
     >
       <span className={cn(
-        isPlaceholder && "text-muted-foreground/30",
-        !isPlaceholder && value === 0 && "text-muted-foreground/50",
-        !isPlaceholder && typeof value === 'number' && value > 0 && "font-medium"
+        isPlaceholder && "text-gray-300",
+        !isPlaceholder && value === 0 && "text-gray-300",
+        !isPlaceholder && typeof value === 'number' && value > 0 && value < 10 && "text-gray-600 font-medium",
+        !isPlaceholder && typeof value === 'number' && value >= 10 && value < 50 && "text-gray-700 font-semibold",
+        !isPlaceholder && typeof value === 'number' && value >= 50 && "text-gray-900 font-bold"
       )}>
         {displayValue}
       </span>

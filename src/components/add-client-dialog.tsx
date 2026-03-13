@@ -5,8 +5,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -183,24 +181,24 @@ export function AddClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <DialogHeader>
-          <DialogTitle>クライアント追加</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[480px] rounded-2xl p-0 overflow-hidden">
+        <div className="px-6 pt-6 pb-4 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100">
+          <DialogTitle className="text-lg font-semibold text-gray-900">クライアント追加</DialogTitle>
+          <DialogDescription className="text-sm text-gray-500 mt-1">
             予測データに追加するクライアントを選択します
           </DialogDescription>
-        </DialogHeader>
+        </div>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            {/* モード切替 — セグメントコントロール風 */}
-            <div className="flex rounded-lg bg-muted p-1 mb-2">
+          <div className="px-6 py-5 space-y-5">
+            {/* セグメントコントロール */}
+            <div className="flex rounded-xl bg-gray-100/80 p-1 gap-1">
               <button
                 type="button"
                 className={cn(
-                  "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                  "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                   mode === 'lookup'
-                    ? "bg-white text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
                 )}
                 onClick={() => { setMode('lookup'); setVcName(''); }}
               >
@@ -209,10 +207,10 @@ export function AddClientDialog({
               <button
                 type="button"
                 className={cn(
-                  "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                  "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                   mode === 'new'
-                    ? "bg-white text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
                 )}
                 onClick={() => { setMode('new'); setVcName(''); }}
               >
@@ -223,7 +221,7 @@ export function AddClientDialog({
             {/* クライアント名 */}
             {mode === 'lookup' ? (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-sm text-muted-foreground">
+                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                   クライアント
                 </Label>
                 <div className="col-span-3">
@@ -270,7 +268,7 @@ export function AddClientDialog({
               </div>
             ) : (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="vcName" className="text-right text-sm text-muted-foreground">
+                <Label htmlFor="vcName" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                   クライアント名
                 </Label>
                 <Input
@@ -286,7 +284,7 @@ export function AddClientDialog({
 
             {/* カテゴリ */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right text-sm text-muted-foreground">
+              <Label htmlFor="category" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                 カテゴリ
               </Label>
               <div className="col-span-3">
@@ -307,7 +305,7 @@ export function AddClientDialog({
 
             {/* 頻度 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="frequency" className="text-right text-sm text-muted-foreground">
+              <Label htmlFor="frequency" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                 頻度
               </Label>
               <div className="col-span-3">
@@ -329,7 +327,7 @@ export function AddClientDialog({
             {/* 間隔（月数） - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-sm text-muted-foreground">
+                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                   間隔（月数）
                 </Label>
                 <Input
@@ -347,7 +345,7 @@ export function AddClientDialog({
             {/* 初回年月 - 定期の場合のみ表示 */}
             {frequency === 'regular' && (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right text-sm text-muted-foreground">初回年月</Label>
+                <Label className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">初回年月</Label>
                 <Input
                   value={startMonth}
                   onChange={(e) => setStartMonth(e.target.value)}
@@ -359,7 +357,7 @@ export function AddClientDialog({
 
             {/* 予定件数 */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="forecastCount" className="text-right text-sm text-muted-foreground">
+              <Label htmlFor="forecastCount" className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide">
                 予定件数
               </Label>
               <Input
@@ -373,14 +371,14 @@ export function AddClientDialog({
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} className="text-muted-foreground">
+          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} className="rounded-lg text-gray-500 hover:text-gray-700">
               キャンセル
             </Button>
-            <Button type="submit" className="shadow-sm">
+            <Button type="submit" className="rounded-lg shadow-sm">
               追加
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

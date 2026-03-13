@@ -58,38 +58,48 @@
   }
 }
 
-/* Smooth scrolling */
+/* ===== Premium Dashboard Styles ===== */
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbar for forecast grid */
+/* Forecast grid scrollbar */
 .forecast-scrollbar::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 .forecast-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+  margin: 0 8px;
 }
 .forecast-scrollbar::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.2);
-  border-radius: 3px;
+  background: hsl(var(--muted-foreground) / 0.15);
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 .forecast-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.35);
+  background: hsl(var(--muted-foreground) / 0.3);
 }
 
-/* Animation utilities */
+/* Sticky column separator */
+.sticky-col-shadow {
+  box-shadow: 3px 0 12px -4px rgba(0, 0, 0, 0.06);
+}
+
+/* Slide-in animation */
 @keyframes slide-in-from-top {
-  from { opacity: 0; transform: translateY(-4px); }
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-in {
-  animation: slide-in-from-top 0.3s ease-out;
+  animation: slide-in-from-top 0.25s ease-out;
 }
 
-/* Sticky column shadow */
-.sticky-col-shadow {
-  box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.08);
+/* Tabular nums for the grid */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
