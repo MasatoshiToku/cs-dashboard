@@ -30,6 +30,24 @@ export interface ForecastRow {
   notes: string;
 }
 
+export type ForecastCategory =
+  | '新規VC'
+  | 'SU'
+  | '継続月次'
+  | '継続四半期'
+  | 'データマネジメント'
+  | 'トランザクション'
+  | 'LP投資管理';
+
+export type ForecastFrequency = 'one-time' | 'monthly' | 'quarterly';
+
+export interface ForecastRowExtended extends ForecastRow {
+  category: ForecastCategory;
+  frequency: ForecastFrequency;
+  deadlineDay: number | null;
+  assignDeadlineDay: number | null;
+}
+
 export interface MetaData {
   lastSyncAt: string;
   issueCount: number;

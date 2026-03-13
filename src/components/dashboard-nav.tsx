@@ -8,6 +8,7 @@ const navItems = [
   { href: "/dashboard/deadline", label: "Deadline" },
   { href: "/dashboard/vc-progress", label: "VC Progress" },
   { href: "/dashboard/status", label: "Status" },
+  { href: "/dashboard/forecast", label: "Forecast" },
 ];
 
 export function DashboardNav() {

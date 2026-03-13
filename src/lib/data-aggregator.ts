@@ -1,4 +1,5 @@
-import type { IssueRow, ForecastRow, DeadlineAlert, VcProgress, StatusBreakdown, KpiData } from './types';
+import type { IssueRow, ForecastRow, ForecastRowExtended, ForecastCategory, DeadlineAlert, VcProgress, StatusBreakdown, KpiData } from './types';
+import { FORECAST_CATEGORIES } from './constants';
 import { diffDays } from './utils';
 
 export function filterIssues(
@@ -114,4 +115,27 @@ export function getUniqueAssignees(issues: IssueRow[]): string[] {
 
 export function getUniqueYearMonths(issues: IssueRow[]): string[] {
   return Array.from(new Set(issues.map(i => i.yearMonth).filter(Boolean))).sort().reverse();
+}
+
+export function groupForecastsByCategory(
+  forecasts: ForecastRowExtended[]
+): Record<ForecastCategory, ForecastRowExtended[]> {
+  const result = {} as Record<ForecastCategory, ForecastRowExtended[]>;
+  for (const cat of FORECAST_CATEGORIES) {
+    result[cat] = [];
+  }
+  for (const forecast of forecasts) {
+    const cat = forecast.category;
+    if (result[cat]) {
+      result[cat].push(forecast);
+    } else {
+      // Fallback for unknown categories
+      result['新規VC'].push(forecast);
+    }
+  }
+  return result;
+}
+
+export function getUniqueForecastMonths(forecasts: ForecastRow[]): string[] {
+  return Array.from(new Set(forecasts.map(f => f.yearMonth).filter(Boolean))).sort();
 }
